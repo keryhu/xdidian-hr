@@ -58,20 +58,6 @@ buildNumber.properties
 
 .gitignore
 .idea/
-README.md
-account-activate/
-auth-server/
-company/
-config-server/
-docker-compose.yml
-eureka/
-mail/
-menu/
-pc-gateway/
-pom.xml
-signup/
-stop-all-images.sh
 Would skip repository target/config
-user/
-websocket/
+
 xdidian-hr.iml

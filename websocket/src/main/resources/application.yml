@@ -1,0 +1,21 @@
+server:
+  port: 8007
+
+
+
+
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        newCompanyInputChannel:
+          destination: newCompany
+        checkNewCompanyInputChannel:
+          destination: checkNewCompany
+          content-type: application/x-java-object; type=com.xdidian.keryhu.domain.company.CheckCompanyDto;
+      
+
+ 
+  
+
