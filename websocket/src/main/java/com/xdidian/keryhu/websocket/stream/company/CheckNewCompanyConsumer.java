@@ -8,7 +8,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.Arrays;
 
 /**
  * Created by hushuming on 2016/10/10.
@@ -29,16 +28,15 @@ public class CheckNewCompanyConsumer {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @StreamListener(CheckNewCompanyInputChannel.NAME)
-    public void receive(CheckCompanyDto[] dto) {
+    public void receive(CheckCompanyDto dto) {
 
         log.info("websocket 接受到来自company_info新公司注册审核结果的消息，现在准备发送websocket出去！");
 
         //客户端的接受 主题是：stompClient.subscribe('/userId/' + '/queue/checkNewCompany,...)
 
         if (dto != null) {
-            Arrays.stream(dto).forEach(e -> simpMessagingTemplate
-                    .convertAndSendToUser(e.getUserId(),
-                            "/queue/checkNewCompany", e.getCheckType().toValue()));
+            simpMessagingTemplate.convertAndSendToUser(dto.getUserId(),
+                    "/queue/checkNewCompany",dto.getCheckType());
         }
     }
 

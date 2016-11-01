@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 
-import java.util.Arrays;
 
 /**
  * Created by hushuming on 2016/10/10.
@@ -32,25 +31,25 @@ public class CheckNewCompanyConsumer {
     private UserRepository repository;
 
     @StreamListener(CheckNewCompanyInputChannel.NAME)
-    public void receive(CheckCompanyDto[] dto) {
+    public void receive(CheckCompanyDto dto) {
         if (dto != null) {
-            Arrays.stream(dto).forEach(e -> {
-                if (e.getCheckType().equals(CheckType.AGREE)) {
+            if (dto.getCheckType().equals(CheckType.AGREE)) {
 
-                    repository.findById(e.getUserId())
-                            .ifPresent(v -> {
-                                v.addCompanyId(e.getCompanyId());
-                                v.addRole(Role.ROLE_COMPANY_ADMIN);
-                                repository.save(v);
-                            });
-                    log.info("user-account 接受到company_info传递过来的审核通过的公司资料，" +
-                            "现在将该adminId转为company-admin，并且设置companyId");
-                }
+                repository.findById(dto.getUserId())
+                        .ifPresent(v -> {
+                            v.addCompanyId(dto.getCompanyId());
+                            v.addRole(Role.ROLE_COMPANY_ADMIN);
+                            repository.save(v);
+                        });
+                log.info("user-account 接受到company_info传递过来的审核通过的公司资料，" +
+                        "现在将该adminId转为company-admin，并且设置companyId");
 
-            });
+            }
+
+
         }
-
     }
 
-
 }
+
+

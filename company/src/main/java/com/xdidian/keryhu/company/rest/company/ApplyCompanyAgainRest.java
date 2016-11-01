@@ -38,7 +38,7 @@ public class ApplyCompanyAgainRest {
         NewCompanyWaitCheckedDto dto = repository.findByAdminId(id)
                 .stream()
                 .filter(e -> !e.isChecked())
-                .filter(e -> e.getReject() != null)
+                .filter(e -> e.getRejects() != null)
                 .map(e -> convertUtil.companyToNewCompanyWaitCheckedDto.apply(e))
                 .findFirst()
                 .orElse(null);

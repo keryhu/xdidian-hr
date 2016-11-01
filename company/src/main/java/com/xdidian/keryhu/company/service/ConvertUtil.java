@@ -3,6 +3,7 @@ package com.xdidian.keryhu.company.service;
 import java.time.LocalDateTime;
 import java.util.function.Function;
 
+
 import com.xdidian.keryhu.company.domain.company.*;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
@@ -17,6 +18,8 @@ import org.springframework.util.Assert;
 @Component
 @Slf4j
 public class ConvertUtil {
+
+
 
     private final FileService fileService = new FileService();
     public Function<String, CompanyIndustry> stringToCompanyIndustry =
@@ -160,4 +163,6 @@ public class ConvertUtil {
                 }
                 return dto;
             };
+
+
 }

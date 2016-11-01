@@ -1,6 +1,8 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
 import com.xdidian.keryhu.company.client.UserClient;
+import com.xdidian.keryhu.company.domain.company.check.CheckCompanySignupInfoDto;
+import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.feign.EmailAndPhoneDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import com.xdidian.keryhu.company.service.CompanyService;
@@ -15,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
+
 
 /**
  * Created by hushuming on 2016/10/9.
- *
+ * <p>
  * 新地点的工作人员，审核公司注册资料的 rest
  */
 
@@ -55,8 +57,8 @@ public class CheckCompanyRest {
      * <p>
      * <p>
      * 当新公司注册后，新地点的工作人员，
-     * 审核通过了公司的注册资料，由company_info，发出的，消息，
-     * 1 给user——account，通知他更新 user 的权限为 ROLE_COMPANY_ADMIN，更新companyId为新的。（id或email或phone，和companyId）
+     * 审核通过了公司的注册资料，由company，发出的，消息，
+     * 1 给user，通知他更新 user 的权限为 ROLE_COMPANY_ADMIN，更新companyId为新的。（id或email或phone，和companyId）
      * 2 通知邮件服务器，发送审核成功的通知，(email-必需，companyId）。
      * 3 通知手机平台，发送审核成功的通知，（phone--必需，companyId）
      * 4 通知websocket，给对应的userId，发送通知（userId-必需，companyId）
@@ -74,43 +76,40 @@ public class CheckCompanyRest {
      * <p>
      * 5 如果审核通过，需要更改本地的 company数据库，checked为false，更新checkedTime为当前时间，加上reject保存
      * <p>
-     * ----审核的时候，提交的项目中，具体哪一项，或者哪几项不符合要求，具体钩出来。前台作出 勾选并且提交给后台。
+     * <p>
      * <p>
      * 提交的格式是：可选项： xx项目，拒绝原因：xxx；这是map<String,String>。
      */
 
     @PostMapping("/service/check-company")
     public ResponseEntity<?> agreeCompany(
-            @RequestParam("companyId") String[] companyId,
-            @RequestParam("checkType") String checkType,
-            @RequestParam(value = "reject", required = false)
-                    Map<String, String> reject,
+            @RequestBody CheckCompanySignupInfoDto dto,
             @RequestHeader("Authorization") String token) {
 
-        boolean ct = checkType.equals(CheckType.AGREE.toValue()) ||
-                checkType.equals(CheckType.REJECT.toValue());
-        Assert.isTrue(ct, "上传的checkType不正确！");
 
-        // 正面提交过来的reject key 信息是正确的。
-        boolean k = reject.keySet().stream()
-                .allMatch(e -> companyService.isKeyExistInRejectCompany(e));
+        Assert.notNull(dto.getCompanyId(),"companyId 必填！");
+        Assert.isTrue(repository.findById(dto.getCompanyId()).isPresent(),"companyId 无效！");
+        Assert.notNull(dto.getCheckType(), "checkType不能为空");
+        // 如果是拒绝了，那么必需提供拒绝的理由
+        if (dto.getCheckType().equals(CheckType.REJECT)) {
 
-        Assert.isTrue(k, "reject信息不正确！");
-
-        if (reject == null) {
-            Assert.isTrue(checkType.equals(CheckType.AGREE.toValue()), "上传的参数不对！");
-        } else {
-            Assert.isTrue(checkType.equals(CheckType.REJECT.toValue()), "上传的参数不对！");
+            Assert.notNull(dto.getRejects(), "必需提供拒绝的理由！");
+            // 每一个拒绝的理由中，必需提供
+            Predicate<Reject> rejectAllNotNull = x -> x.getItem() != null && x.getMessage() != null;
+            boolean m = dto.getRejects().stream().allMatch(rejectAllNotNull);
+            Assert.isTrue(m, "必需填写拒绝的条目和理由");
         }
+
+
 
         Map<String, Boolean> map = new HashMap<>();
 
-        Assert.notEmpty(companyId, "adminId数组不能为空");
-        //根据companId，查询本地的adminId，然后根据adminId，通过feign查询对应的email和phone 对象。
-        CheckCompanyDto[] a = Arrays.stream(companyId)
-                .map(e -> repository.findById(e).orElse(null))
-                .filter(e -> e != null)
-                .map(e -> {
+        // 为什么需要 repostiroy.findById。因为需要通过companyId，查找到他的adminId，
+        // 再找到注册申请人的email，phone，这样同意或拒绝申请材料，才可以通知到他
+
+        // 将本地的company对象，转为CheckCompanyDto，方便发送message出去。
+        CheckCompanyDto checkCompanyDto=repository.findById(dto.getCompanyId())
+                .map(e->{
                     CheckCompanyDto d = new CheckCompanyDto();
                     String userId = e.getAdminId();
                     EmailAndPhoneDto ep = userClient.getEmailAndPhoneById(userId, token);
@@ -118,27 +117,23 @@ public class CheckCompanyRest {
                     d.setPhone(ep.getPhone());
                     d.setCompanyId(e.getId());
                     d.setUserId(userId);
-                    d.setCheckType(CheckType.forValue(checkType));
-                    return d;
-                })
-                .toArray(CheckCompanyDto[]::new);
-
-        checkNewCompanyProducer.send(a);
-
-        //保存本地
-        Arrays.stream(a)
-                .map(e -> repository.findById(e.getCompanyId()).get())
-                .forEach(e -> {
-                    if (checkType.equals(CheckType.AGREE.toValue())) {
+                    d.setCheckType(dto.getCheckType());
+                    // 如果是同意了申请，那么更新数据库资料
+                    if(dto.getCheckType().equals(CheckType.AGREE)){
                         e.setChecked(true);
-
-                    } else {
+                    }
+                    else {
                         e.setChecked(false);
-                        e.setReject(reject);
+                        e.setRejects(dto.getRejects());
                     }
                     e.setCheckedTime(LocalDateTime.now());
                     repository.save(e);
-                });
+                    return d;
+                }).orElse(null);
+
+
+        checkNewCompanyProducer.send(checkCompanyDto);
+
 
         //审核完成，发送结果给前台。
         map.put("result", true);

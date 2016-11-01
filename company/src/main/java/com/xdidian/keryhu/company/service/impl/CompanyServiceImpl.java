@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import com.xdidian.keryhu.company.client.UserClient;
 import com.xdidian.keryhu.company.config.propertiesConfig.ImageResizeProperties;
 import com.xdidian.keryhu.company.domain.*;
-import com.xdidian.keryhu.company.domain.company.Company;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
 import com.xdidian.keryhu.company.config.propertiesConfig.NewCompanyProperties;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyWaitCheckedDto;
@@ -29,7 +28,6 @@ import com.xdidian.keryhu.tree.TreeNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
 
-import static com.xdidian.keryhu.company.domain.company.Constan.UN_CHECKED_COMPANY_KEYS;
 
 @Component("companyService")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -147,7 +145,7 @@ public class CompanyServiceImpl implements CompanyService {
         if (adminId.length == 1) {
             return repository.findByAdminId(adminId[0]).stream()
                     .filter(e -> !e.isChecked())
-                    .filter(e -> e.getReject() == null)
+                    .filter(e -> e.getRejects() == null||e.getRejects().isEmpty())
                     .findFirst()
                     .map(e -> convertUtil.companyToNewCompanyWaitCheckedDto.apply(e))
                     .map(Arrays::asList)
@@ -157,29 +155,16 @@ public class CompanyServiceImpl implements CompanyService {
         } else {
             return repository.findAll().stream()
                     .filter(e -> !e.isChecked())
-                    .filter(e -> e.getReject() == null)
+                    .filter(e -> e.getRejects() == null||e.getRejects().isEmpty())
                     .map(e -> convertUtil.companyToNewCompanyWaitCheckedDto.apply(e))
                     .collect(Collectors.toList());
         }
 
     }
 
-    //判断提交的key，是否存在于UN_CHECKED_COMPANY_KEYS 中。
-    @Override
-    public boolean isKeyExistInRejectCompany(String key) {
-
-        return Arrays.stream(UN_CHECKED_COMPANY_KEYS)
-                .anyMatch(e -> e.equals(key));
-
-    }
-
 
     /**
-     * @param @return 设定文件
-     * @return TreeNode<Department>    返回类型
-     * @throws
-     * @Title: defaultDepartment
-     * @Description: TODO(获取默认的部门表)
+     * 获取默认的部门表
      */
 
 

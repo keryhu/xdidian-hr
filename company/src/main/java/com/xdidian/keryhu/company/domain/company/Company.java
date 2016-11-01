@@ -2,12 +2,15 @@ package com.xdidian.keryhu.company.domain.company;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.querydsl.core.annotations.QueryEntity;
 import com.xdidian.keryhu.company.domain.address.Address;
 import com.xdidian.keryhu.company.domain.Department;
+import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
 import org.springframework.data.annotation.Id;
@@ -72,7 +75,8 @@ public class Company implements Serializable {
 
   private EnterpriseNature enterpriseNature; // 公司性质。
 
-  private Map<String, String> reject;           // 审核被拒绝的理由。
+  // 审核被拒绝的理由。如果有新的拒绝理由，应该是add，而不是覆盖原来的，这样还可以查看到 以前这个公司的拒绝的理由。
+  private List<Reject> rejects=new ArrayList<>();
 
   public Company() {
     this.id = UUID.randomUUID().toString();
@@ -87,8 +91,9 @@ public class Company implements Serializable {
     this.intruductionPath=null;
     this.companyIndustry=null;
     this.enterpriseNature=null;
-    this.reject = null;
   }
+
+
 
 
 

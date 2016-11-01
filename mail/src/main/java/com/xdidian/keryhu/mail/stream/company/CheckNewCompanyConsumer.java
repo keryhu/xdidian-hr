@@ -11,7 +11,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.thymeleaf.context.Context;
 
-import java.util.Arrays;
 
 /**
  * Created by hushuming on 2016/10/10.
@@ -34,34 +33,32 @@ public class CheckNewCompanyConsumer {
     private EmailHtmlSender mailSender;
 
     @StreamListener(CheckNewCompanyInputChannel.NAME)
-    public void receive(CheckCompanyDto[] dto) {
+    public void receive(CheckCompanyDto dto) {
 
         if (dto != null) {
-            Arrays.stream(dto).forEach(e -> {
-                final Context ctx = new Context();
-                String type = "";
-                String content = "";  // 邮件的主要内容
+            final Context ctx = new Context();
+            String type = "";
+            String content = "";  // 邮件的主要内容
 
-                String url = new StringBuffer(host.getHostName())
-                        .append(":8080/profile/new-company")
-                        .toString();
+            String url = new StringBuffer(host.getHostName())
+                    .append(":8080/profile/new-company")
+                    .toString();
 
-                if (e.getCheckType().equals(CheckType.AGREE)) {
-                    type = "公司注册审核通过";
-                    content = "恭喜您，提交的公司材料已通过申请！现在就可以进入：";
+            if (dto.getCheckType().equals(CheckType.AGREE)) {
+                type = "公司注册审核通过";
+                content = "恭喜您，提交的公司材料已通过申请！现在就可以进入：";
 
-                } else if (e.getCheckType().equals(CheckType.REJECT)) {
-                    type = "公司注册审核失败";
-                    content = "很遗憾！您提交的公司材料未被通过，详细了解：";
-                }
-                String subject = "新地点－" + type;
+            } else if (dto.getCheckType().equals(CheckType.REJECT)) {
+                type = "公司注册审核失败";
+                content = "很遗憾！您提交的公司材料未被通过，详细了解：";
+            }
+            String subject = "新地点－" + type;
 
-                ctx.setVariable("content", content);
-                ctx.setVariable("url", url);
-                ctx.setVariable("email", e.getEmail());
+            ctx.setVariable("content", content);
+            ctx.setVariable("url", url);
+            ctx.setVariable("email", dto.getEmail());
 
-                mailSender.send(e.getEmail(), subject, "checkCompany", ctx);
-            });
+            mailSender.send(dto.getEmail(), subject, "checkCompany", ctx);
         }
 
 

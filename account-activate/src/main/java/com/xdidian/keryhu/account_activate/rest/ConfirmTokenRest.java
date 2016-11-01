@@ -51,7 +51,7 @@ public class ConfirmTokenRest {
 
     @PostMapping("/accountActivate/confirmToken")
     public ResponseEntity<?> tokenConfirm(@RequestBody final CommonConfirmTokenDto dto) {
-        Assert.isTrue(dto.getApplySituation() != null, "ApplySituation 不能为空");
+        Assert.notNull(dto.getApplySituation(),"ApplySituation 不能为空");
 
         Map<String, Object> map = new HashMap<String, Object>();
 

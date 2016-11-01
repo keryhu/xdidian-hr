@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
  * 4 通知websocket，给对应的userId，发送通知（userId-必需，companyId）
  * <p>
  * 具体审核公司的post，此路由是 拒绝公司的注册资料，并将拒绝的理由保存起来。接收方有邮件服务器，手机平台，websocket。
- * 注意提交的是 companyId，数组。
+ *
  * 审核失败了：
  * 1 通知邮件服务器，发送审核失败的通知，(email-必需，companyId）。
  * 3 通知手机平台，发送审核失败的通知，（phone--必需，companyId）
@@ -34,7 +34,7 @@ public class CheckNewCompanyProducer {
     @Autowired
     private CheckNewCompanyOutputChannel channel;
 
-    public void send(CheckCompanyDto[] dto) {
+    public void send(CheckCompanyDto dto) {
 
         boolean result = channel.check()
                 .send(MessageBuilder.withPayload(dto).build());
