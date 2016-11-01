@@ -86,14 +86,20 @@ public class UserServiceImpl implements UserService {
         boolean canModify = converterUtil
                 .nameCanModify(repository.findById(id).get());
 
-        Object[] args = {u.getNameModifyTime().getYear(),
-                u.getNameModifyTime().getMonth(),
-                u.getNameModifyTime().getDayOfMonth()};
-        ;
+        if(u.getNameModifyTime()!=null){
+            Object[] args = {u.getNameModifyTime().getYear(),
+                    u.getNameModifyTime().getMonth(),
+                    u.getNameModifyTime().getDayOfMonth()};
 
-        Assert.isTrue(canModify,
-                messageSource.getMessage("message.user.nameCannotModify",
-                        args, LocaleContextHolder.getLocale()));
+            Assert.isTrue(canModify,
+                    messageSource.getMessage("message.user.nameCannotModify",
+                            args, LocaleContextHolder.getLocale()));
+
+        }
+
+
+
+
 
 
     }

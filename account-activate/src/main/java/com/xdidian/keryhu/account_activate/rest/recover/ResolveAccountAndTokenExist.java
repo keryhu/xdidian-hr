@@ -1,4 +1,4 @@
-package com.xdidian.keryhu.account_activate.recover.rest;
+package com.xdidian.keryhu.account_activate.rest.recover;
 
 import java.util.HashMap;
 import java.util.Map;
