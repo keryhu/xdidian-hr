@@ -103,7 +103,7 @@ public class AdminRest {
 
 
     // 新地点的管理人员，根据搜索条件，搜索数据库中的会员，返回的是pagination对象。
-    // 包含了用户注册日期，用户最后登录日期
+    // 包含了用户注册日期，用户最后登录日期   requesParam 参数必需要分开，不能何在一起为一个object，
 
     @GetMapping("/admin/queryWithPage")
     public Page<User> get(
@@ -116,13 +116,15 @@ public class AdminRest {
             @RequestParam(value = "lastLoginTimeBegin", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastLoginTimeBegin,
             @RequestParam(value = "lastLoginTimeEnd", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastLoginTimeEnd
-    ) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastLoginTimeEnd) {
 
-        boolean contentNotNull = content != null;
-        boolean registerTimeNotNull = registerTimeBegin != null && registerTimeEnd != null;
 
-        boolean lastLoginTimeNotNull = lastLoginTimeBegin != null && lastLoginTimeEnd != null;
+        boolean contentNotNull =content != null;
+        boolean registerTimeNotNull = registerTimeBegin != null
+                && registerTimeEnd != null;
+
+        boolean lastLoginTimeNotNull = lastLoginTimeBegin != null
+                && lastLoginTimeEnd != null;
 
         boolean contentAndRegisterTimeAllNotNull = contentNotNull && registerTimeNotNull;
 
@@ -166,7 +168,7 @@ public class AdminRest {
         Predicate contentAndLastLoginTimePredicate = null;
 
 
-        if (content != null) {
+        if (contentNotNull) {
             contentPredicate = user.email.eq(content)
                     .or(user.phone.eq(content)).or(user.name.eq(content));
         }
@@ -175,6 +177,7 @@ public class AdminRest {
         if (registerTimeNotNull) {
             registerTimePredicate = user.registerTime.after(registerTimeBegin)
                     .and(user.registerTime.before(registerTimeEnd));
+            log.info(String.valueOf(registerTimePredicate));
 
         }
         if (lastLoginTimeNotNull) {
@@ -186,9 +189,11 @@ public class AdminRest {
         if (!contentNotNull && registerTimeNotNull && lastLoginTimeNotNull) {
 
             contentNullButRegisterTimeAndLastLoginTimeNotNullPredicate =
-                    user.registerTime.after(registerTimeBegin)
-                            .and(user.registerTime.before(registerTimeEnd))
+                    user.registerTime.after(lastLoginTimeBegin)
+                            .and(user.registerTime.before(lastLoginTimeEnd))
+
                             .and(lastLoginTimePredicate);
+
         }
 
 
@@ -216,7 +221,7 @@ public class AdminRest {
         }
 
 
-        if (content == null) {
+        if (!contentNotNull) {
             // content is null, registerTime  is not null
             if (registerTimeNotNull) {
                 // content is null, registerTime  is not null  ,last login Time not null

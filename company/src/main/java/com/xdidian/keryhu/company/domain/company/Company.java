@@ -55,15 +55,14 @@ public class Company implements Serializable {
 
 
   @DateTimeFormat(iso = ISO.DATE_TIME)
-
   private LocalDateTime checkedTime; // 资料被审核的时间
 
 
-  @JsonSerialize(using = TreeDepartmentSerializer.class)
-  @JsonDeserialize(using = TreeDepartmentDeserializer.class)
-  private TreeNode<Department> department; // 公司下面的部门
+  //@JsonSerialize(using = TreeDepartmentSerializer.class)
+ // @JsonDeserialize(using = TreeDepartmentDeserializer.class)
+  //private TreeNode<Department> department; // 公司下面的部门
 
-  private boolean defaultDepartment; // 是否使用默认的部门。
+  //private boolean defaultDepartment; // 是否使用默认的部门。
 
   private String businessLicensePath; // 营业执照的图片,存储的路径（本地）
 
@@ -82,8 +81,8 @@ public class Company implements Serializable {
     this.adminId = null;
     this.checked=false;
     this.registerTime = null;
-    this.department = null;
-    this.defaultDepartment = true;
+    //this.department = null;
+   // this.defaultDepartment = true;
     this.businessLicensePath=null;
     this.intruductionPath=null;
     this.companyIndustry=null;

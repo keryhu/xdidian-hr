@@ -32,7 +32,7 @@ public class TreeDepartmentReadConvert implements Converter<DBObject, TreeNode<D
 
   @Override
   public TreeNode<Department> convert(DBObject source) {
-
+    // TODO Auto-generated method stub
 
     return convertDepartment(source);
   }
@@ -56,13 +56,14 @@ public class TreeDepartmentReadConvert implements Converter<DBObject, TreeNode<D
             DBObject object = (DBObject) e;
             String office = object.get("office").toString();
             Gson gson = new Gson();
-            return gson.fromJson(office, Office.class);
+            Office o = gson.fromJson(office, Office.class);
+            return o;
           }).collect(Collectors.toList());
 
           department.setListOffice(list);
         }
       }
-      
+
       if(source.containsField("offices")){
         DBObject treeOffice=(DBObject) source.get("offices");
         TreeOfficeReadConvert officeConvert=new TreeOfficeReadConvert();
@@ -78,7 +79,7 @@ public class TreeDepartmentReadConvert implements Converter<DBObject, TreeNode<D
         BasicDBList departments = (BasicDBList) source.get("department");
         Collection<TreeNode<Department>> back = convertDepartments(departments);
         if (!back.isEmpty()) {
-          back.forEach(n1::add);
+          back.forEach(e -> n1.add(e));
         }
       }
       return n1;

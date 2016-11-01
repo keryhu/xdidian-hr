@@ -23,9 +23,10 @@ public class TreeDepartmentWriteConvert implements Converter<TreeNode<Department
 
   @Override
   public DBObject convert(TreeNode<Department> source) {
+    // TODO Auto-generated method stub
     return convertDepartment(source) ;
   }
-  
+
   private DBObject convertDepartment(TreeNode<Department> source){
     DBObject dbo = new BasicDBObject();
     Department department = source.data();
@@ -37,12 +38,12 @@ public class TreeDepartmentWriteConvert implements Converter<TreeNode<Department
       BasicDBObject b=new BasicDBObject();
       if(!department.getListOffice().isEmpty()){
         department.getListOffice()
-        .forEach(e->{ 
-          list.add(b.put("office", e));
-        });
+                .forEach(e->{
+                  list.add(b.put("office", e));
+                });
         dbo.put("listOffice", list);
       }
-      
+
       if(source.subtrees()!=null){
         BasicDBList treeList=convertDepartments(source.subtrees());
         dbo.put("offices", treeList);
@@ -51,7 +52,7 @@ public class TreeDepartmentWriteConvert implements Converter<TreeNode<Department
     }
     return null;
   }
-  
+
   private BasicDBList convertDepartments(Collection<? extends TreeNode<Department>> sources){
     BasicDBList list =new BasicDBList();
     sources.forEach(e->list.add(convertDepartment(e)));

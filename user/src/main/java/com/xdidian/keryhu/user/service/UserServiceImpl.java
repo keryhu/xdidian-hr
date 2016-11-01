@@ -107,21 +107,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void validateBirthdayAndSave(BirthdayModifyDto dto) {
 
-        //验证传递来的id，是否存在，月份和天数，是否对，密码是否对。
-        Assert.isTrue(dto.getMonth() > 0 && dto.getMonth() < 13,
-                messageSource.getMessage("message.user.monthNotCorrect",
-                null,LocaleContextHolder.getLocale()));
-
-        Assert.isTrue(dto.getDate() > 0 && dto.getDate() < 32,
-                messageSource.getMessage("message.user.dayNotCorrect",
-                        null,LocaleContextHolder.getLocale()));
+        //验证传递来的id，是否存在，密码是否对。
 
         validateUserId(dto.getUserId());
 
         validatePasswordMatch(dto.getPassword(), dto.getUserId());
 
         repository.findById(dto.getUserId()).ifPresent(e -> {
-            e.setBirthday(LocalDate.of(1999, dto.getMonth(), dto.getDate()));
+            e.setBirthday(dto.getBirthday());
             repository.save(e);
         });
     }

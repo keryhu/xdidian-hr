@@ -63,7 +63,7 @@ public class TreeOfficeReadConvert implements Converter<DBObject,TreeNode<Office
         BasicDBList  offices=(BasicDBList) source.get("office");
         Collection<TreeNode<Office>> back=convertOffices(offices);
         if(!back.isEmpty()){
-          back.forEach(e->o1.add(e));
+          back.forEach(o1::add);
           
         }
       }

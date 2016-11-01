@@ -1,10 +1,12 @@
 package com.xdidian.keryhu.user.domain.edit;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 
@@ -23,9 +25,8 @@ public class BirthdayModifyDto implements Serializable{
 
   private String userId; // userId
 
-  private int month;     //传递上来 月份
-  
-  private int date;    //传递上来的  月份的具体几号
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private LocalDate birthday;
   
   private String password;  //此密码是用户输入的 密码，并不是加密密码。
   

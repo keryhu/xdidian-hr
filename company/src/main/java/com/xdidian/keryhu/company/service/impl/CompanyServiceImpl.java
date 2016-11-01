@@ -52,20 +52,24 @@ public class CompanyServiceImpl implements CompanyService {
      *
      * @param companyId
      * @return
-     */
-    @Override
+     *
+     * @Override
     public TreeNode<Department> getDepartment(String companyId) {
 
-        boolean defaultDepartment = repository.findById(companyId)
-                .map(Company::isDefaultDepartment)
-                .orElse(true);
+    boolean defaultDepartment = repository.findById(companyId)
+    .map(Company::isDefaultDepartment)
+    .orElse(true);
 
-        if (defaultDepartment) {
-            return defaultDepartment();
-        } else {
-            return repository.findById(companyId).map(Company::getDepartment).get();
-        }
+    if (defaultDepartment) {
+    return defaultDepartment();
+    } else {
+    return repository.findById(companyId).map(Company::getDepartment).get();
     }
+    }
+     *
+     *
+     */
+
 
     // 当新公司注册时候，提交post ，验证信息是否 符合要求。
 

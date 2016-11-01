@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CompanyService {
   
-  public TreeNode<Department> getDepartment(String companyId);
+  //public TreeNode<Department> getDepartment(String companyId);
 
   // 当新公司注册时候，提交post ，验证信息是否 符合要求。
   public void validateNewCompanyPost(final NewCompanyDto dto);
