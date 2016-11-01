@@ -121,8 +121,6 @@ public class FeignRest {
      * 用在company 服务 组件，用来传递spring feign。对方使用userId，
      * 来同时获取email和phone
      * @param id  特指userId
-     * @param token
-     * @return
      */
 
     @GetMapping("users/emailAndPhone")

@@ -84,7 +84,7 @@ public class User implements Serializable {
 
 
     // 用户的生日，只需要月份－日期，其中年份统一为0000,如果用户生日未设置，默认为1月1日。
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Indexed
 
     private LocalDate birthday;

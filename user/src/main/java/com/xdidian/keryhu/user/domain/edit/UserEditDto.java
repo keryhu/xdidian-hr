@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 
 /**
  * 
- * @ClassName: UserInfoDto
- * @Description: TODO(用户 修改个人资料，头像，姓名，email，手机号，生日 等，首先需要下载这些信息到页面。的class。)
+ * 用户 修改个人资料，头像，姓名，email，手机号，生日 等，首先需要下载这些信息到页面。的class。)
  * @author keryhu keryhu@hotmail.com
  * @date 2016年8月15日 上午11:04:38
  */
@@ -42,14 +41,10 @@ public class UserEditDto implements Serializable {
   private boolean nameCanModify;  //用户的姓名是否可以修改。
 
   @DateTimeFormat(iso = ISO.DATE_TIME)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
   private LocalDateTime nameModifyTime; // 记录姓名修改时间
 
   // 用户的生日，只需要月份－日期，其中年份统一为0000
-  @DateTimeFormat(iso = ISO.DATE_TIME)
-  @JsonDeserialize(using = LocalDateDeserializer.class)
-  @JsonSerialize(using = LocalDateSerializer.class)
+  @DateTimeFormat(iso = ISO.DATE)
   private LocalDate birthday;
 
 
