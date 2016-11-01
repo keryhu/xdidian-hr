@@ -2,10 +2,12 @@ package com.xdidian.keryhu.company.domain.company.create;
 
 
 import com.xdidian.keryhu.company.domain.address.Address;
+import com.xdidian.keryhu.company.domain.company.check.Reject;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +37,6 @@ public class NewCompanyWaitCheckedDto implements Serializable {
 
     private String intruductionType;    //介绍信的图片格式
 
-    private Map<String, String> reject;           // 审核被拒绝的理由。
+    private List<Reject> rejects;           // 审核被拒绝的理由。
 
 }

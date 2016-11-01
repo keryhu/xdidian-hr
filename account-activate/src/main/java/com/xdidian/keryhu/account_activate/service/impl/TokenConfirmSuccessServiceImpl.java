@@ -15,8 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * 
- * @ClassName: TokenConfirmSuccessService
- * @Description: TODO(当前台输入的 token验证码激活成功的时候，需要执行的事情。
+ * 当前台输入的 token验证码激活成功的时候，需要执行的事情。
  * 
  *               0 共同的方法，删除本地的 此account 所在的数据库记录
  * 
@@ -41,25 +40,23 @@ public class TokenConfirmSuccessServiceImpl implements TokenConfirmSuccessServic
 
   @Override
   public void exec(CommonConfirmTokenDto dto) {
-    // TODO Auto-generated method stub
     
     CommonTokenDto commonTokenDto = new CommonTokenDto();
-    ApplySituation applySituation = converterUtil.stringToApplySituation(dto.getApplySituation());
 
     // 发送激活成功的消息出去
-    if (dto.getApplySituation().equals("SIGNUP")) {
+    if (dto.getApplySituation().equals(ApplySituation.SIGNUP)) {
       commonTokenDto.setApplySituation(ApplySituation.SIGNUP);
       commonTokenDto.setAccount(dto.getAccount());
       activatedSuccessProducer.send(commonTokenDto);
-      repository.findByAccountAndApplySituation(dto.getAccount(), applySituation)
-      .ifPresent(e -> repository.delete(e));
-    } else if (dto.getApplySituation().equals("EDIT")) {
+      repository.findByAccountAndApplySituation(dto.getAccount(), dto.getApplySituation())
+      .ifPresent(repository::delete);
+    } else if (dto.getApplySituation().equals(ApplySituation.EDIT)) {
       commonTokenDto.setApplySituation(ApplySituation.EDIT);
       commonTokenDto.setAccount(dto.getAccount());
       commonTokenDto.setUserId(dto.getUserId());
       activatedSuccessProducer.send(commonTokenDto);
-      repository.findByAccountAndApplySituation(dto.getAccount(), applySituation)
-      .ifPresent(e -> repository.delete(e));
+      repository.findByAccountAndApplySituation(dto.getAccount(), dto.getApplySituation())
+      .ifPresent(repository::delete);
 
     }
   

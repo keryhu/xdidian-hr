@@ -158,8 +158,8 @@ public class ConvertUtil {
                 dto.setBusinessLicenseType(fileService.getTypeFromImgPath(x.getBusinessLicensePath()));
                 dto.setIntruductionType(fileService.getTypeFromImgPath(x.getIntruductionPath()));
 
-                if (x.getReject() != null) {
-                    dto.setReject(x.getReject());
+                if (x.getRejects()!= null) {
+                    dto.setRejects(x.getRejects());
                 }
                 return dto;
             };
