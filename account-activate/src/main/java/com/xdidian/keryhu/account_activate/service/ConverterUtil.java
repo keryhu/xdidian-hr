@@ -105,18 +105,7 @@ public class ConverterUtil {
         return dto;
       };
 
-  // 将string 转为 ApplySituation
-  public ApplySituation stringToApplySituation(String s) {
-      switch (s) {
-          case "SIGNUP":
-              return ApplySituation.SIGNUP;
-          case "RECOVER":
-              return ApplySituation.RECOVER;
-          case "EDIT":
-              return ApplySituation.EDIT;
-      }
-    return null;
-  }
+
   
   /**
    * 将前台提交的对象 NewPasswordFormDto 转为发送给userAccount，更新密码的 message 类型的 NewPasswordDto

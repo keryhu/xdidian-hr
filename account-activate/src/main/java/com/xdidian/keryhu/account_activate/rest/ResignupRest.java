@@ -46,13 +46,11 @@ public class ResignupRest {
   public ResponseEntity<?> emailResignup(@RequestBody final CommonConfirmTokenDto dto) {
     Assert.isTrue(dto.getApplySituation()!=null, "ApplySituation 不能为空");
 
-    ApplySituation applySituation = converterUtil.stringToApplySituation(dto.getApplySituation());
-
     Map<String, Object> map = new HashMap<String, Object>();
-    Assert.isTrue(applySituation.equals(ApplySituation.SIGNUP),"非注册，不能执行");
+    Assert.isTrue(dto.getApplySituation().equals(ApplySituation.SIGNUP),"非注册，不能执行");
     // 如果是注册，需要验证这个。email,必需没有激活，否则直接返回 email已经激活
 
-    if (applySituation.equals(ApplySituation.SIGNUP)) {
+    if (dto.getApplySituation().equals(ApplySituation.SIGNUP)) {
       Assert.isTrue(!userClient.emailStatus(dto.getAccount()), "email已经激活，请直接登录！");
     }
     
@@ -62,7 +60,7 @@ public class ResignupRest {
     commonTokenService.validateCodeAndAccount(dto, TokenType.RESIGNUP);
     
     map.put("result", TOKEN_EXPIRED);
-    tokenExpiredService.executeExpired(dto.getAccount(), applySituation);
+    tokenExpiredService.executeExpired(dto.getAccount(), dto.getApplySituation());
     return ResponseEntity.ok(map);
     
   }

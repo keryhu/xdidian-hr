@@ -34,7 +34,7 @@ public class CommonTokenServiceImpl implements CommonTokenService {
   /**
    * 
   * @ClassName: TokenService
-  * @Description: TODO(当用户注册/用户资料修改或者忘记密码的时候，前台输入 token验证码，来验证
+  * 当用户注册/用户资料修改或者忘记密码的时候，前台输入 token验证码，来验证
   * ，account（email或phone）和token，是否匹配，是否token有效时，所需要的service 验证
   * 1 验证前台输入的token和account，是否符合要求)
   * @author keryhu  keryhu@hotmail.com
@@ -43,21 +43,18 @@ public class CommonTokenServiceImpl implements CommonTokenService {
   
   @Override
   public void validateCodeAndAccount(CommonConfirmTokenDto dto, TokenType tokenType) {
-    // TODO Auto-generated method stub
-  //转为真正需要的  情景模式，，到底是 edit，signup还是recover
-    ApplySituation applySituation=converterUtil.stringToApplySituation(dto.getApplySituation());
-  
+
     Assert.isTrue(isEmail(dto.getAccount())||isPhone(dto.getAccount()), "必需是电子邮箱或手机号");
-    if(!applySituation.equals(ApplySituation.EDIT)){
+    if(!dto.getApplySituation().equals(ApplySituation.EDIT)){
       Assert.isTrue(userClient.isLoginNameExist(dto.getAccount()), "提交的账号不存在");
     }
-    if(dto.getApplySituation().equals("EDIT")){
+    if(dto.getApplySituation().equals(ApplySituation.EDIT)){
       Assert.isTrue(userClient.isIdExist(dto.getUserId()), "userId不存在user数据库");
       Assert.isTrue(repository.findByUserId(dto.getUserId()).isPresent(), "userId不存在account-activated数据库");
     }
      
     boolean accountExist=repository
-        .findByAccountAndApplySituation(dto.getAccount(),applySituation ).isPresent();
+        .findByAccountAndApplySituation(dto.getAccount(),dto.getApplySituation() ).isPresent();
     
     Assert.isTrue(accountExist, "提交的账号不存在");
 
@@ -65,14 +62,14 @@ public class CommonTokenServiceImpl implements CommonTokenService {
     //account 存在的情况下，token 是否也存在
     
     boolean tokenExist=verifyTokenAccountService
-        .accountTokenMatch(dto.getAccount(), dto.getToken(), tokenType,applySituation);
+        .accountTokenMatch(dto.getAccount(), dto.getToken(), tokenType,dto.getApplySituation());
 
     Assert.isTrue(tokenExist, "验证码不正确");
     
-    if(dto.getMethod()!=null&&dto.getApplySituation().equals("RECOVER")){
+    if(dto.getMethod()!=null&&dto.getApplySituation().equals(ApplySituation.RECOVER)){
     
-      boolean methodExist=repository.findByAccountAndApplySituation(dto.getAccount(),applySituation )
-      .map(e->e.getRecoverMethod().toString().equals(dto.getMethod())).get();
+      boolean methodExist=repository.findByAccountAndApplySituation(dto.getAccount(), dto.getApplySituation() )
+      .map(e->e.getRecoverMethod().equals(dto.getMethod())).get();
       
       Assert.isTrue(methodExist, "method不正确");
     }
@@ -89,7 +86,7 @@ public class CommonTokenServiceImpl implements CommonTokenService {
   
   @Override
   public boolean isCodeExired(String account,ApplySituation applySituation) {
-    // TODO Auto-generated method stub
+
     CommonActivatedLocalToken dto=repository.findByAccountAndApplySituation(account,applySituation ).get();
     
     return LocalDateTime.now().isAfter(dto.getExpiryDate());   

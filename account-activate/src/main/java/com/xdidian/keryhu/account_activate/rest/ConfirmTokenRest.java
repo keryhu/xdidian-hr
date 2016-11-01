@@ -6,6 +6,7 @@ import static com.xdidian.keryhu.account_activate.domain.Constants.TOKEN_EXPIRED
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
@@ -17,7 +18,6 @@ import com.xdidian.keryhu.account_activate.client.UserClient;
 import com.xdidian.keryhu.account_activate.domain.CommonConfirmTokenDto;
 import com.xdidian.keryhu.account_activate.domain.TokenType;
 import com.xdidian.keryhu.account_activate.service.CommonTokenService;
-import com.xdidian.keryhu.account_activate.service.ConverterUtil;
 import com.xdidian.keryhu.account_activate.service.TokenConfirmSuccessService;
 import com.xdidian.keryhu.account_activate.service.TokenExpiredService;
 import com.xdidian.keryhu.domain.tokenConfirm.ApplySituation;
@@ -34,39 +34,30 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-
+@Slf4j
 
 public class ConfirmTokenRest {
 
     private final UserClient userClient;
     private final CommonTokenService commonTokenService;
     private final TokenExpiredService tokenExpiredService;
-    private final ConverterUtil converterUtil;
     private final TokenConfirmSuccessService tokenConfirmSuccessService;
 
 
     /**
-     * @param @param  dto
-     * @param @return 设定文件
-     * @return ResponseEntity<?>    返回类型
-     * @throws
-     * @Title: tokenConfirm
-     * @Description: 这是一个通用的 验证码提交，验证 验证码token的 post 方法，3合一
+     * 这是一个通用的 验证码提交，验证 验证码token的 post 方法，3合一
      * 适用于  密码找回，注册完的email验证，个人资料修改。只需要按照 参数提交即可。)
      */
 
     @PostMapping("/accountActivate/confirmToken")
-
-    public ResponseEntity<?> tokenConfirm(
-            @RequestBody final CommonConfirmTokenDto dto) {
+    public ResponseEntity<?> tokenConfirm(@RequestBody final CommonConfirmTokenDto dto) {
         Assert.isTrue(dto.getApplySituation() != null, "ApplySituation 不能为空");
-        ApplySituation applySituation = converterUtil.stringToApplySituation(dto.getApplySituation());
 
         Map<String, Object> map = new HashMap<String, Object>();
 
         // 如果是注册，需要验证这个。email,必需没有激活，否则直接返回 email已经激活
 
-        if (applySituation.equals(ApplySituation.SIGNUP)) {
+        if (dto.getApplySituation().equals(ApplySituation.SIGNUP)) {
             Assert.isTrue(!userClient.emailStatus(dto.getAccount()), "email已经激活，请直接登录！");
         }
 
@@ -76,9 +67,9 @@ public class ConfirmTokenRest {
 
         // 如果激活过期
 
-        if (commonTokenService.isCodeExired(dto.getAccount(), applySituation)) {
+        if (commonTokenService.isCodeExired(dto.getAccount(), dto.getApplySituation())) {
             map.put("result", TOKEN_EXPIRED);
-            tokenExpiredService.executeExpired(dto.getAccount(), applySituation);
+            tokenExpiredService.executeExpired(dto.getAccount(), dto.getApplySituation());
             return ResponseEntity.ok(map);
         }
         // 验证成功了

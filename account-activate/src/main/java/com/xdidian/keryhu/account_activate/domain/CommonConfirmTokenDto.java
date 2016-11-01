@@ -2,6 +2,8 @@ package com.xdidian.keryhu.account_activate.domain;
 
 import java.io.Serializable;
 
+import com.xdidian.keryhu.domain.tokenConfirm.ApplySituation;
+import com.xdidian.keryhu.domain.tokenConfirm.RecoverMethod;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,7 +26,7 @@ public class CommonConfirmTokenDto implements Serializable{
   private String token; 
   
   //为大些的EMAIL OR PHONE
-  private String method;   //可选，当密码找回的时候，前台需要传递回来，是通过哪种method找回密码。其值只能为EMAIL或PHONE
+  private RecoverMethod  method;   //可选，当密码找回的时候，前台需要传递回来，是通过哪种method找回密码。其值只能为EMAIL或PHONE
 
-  private String applySituation;  //应用场景，限制为 SIGNUP / RECOVER /EDIT
+  private ApplySituation applySituation;  //应用场景，限制为 SIGNUP / RECOVER /EDIT
 }

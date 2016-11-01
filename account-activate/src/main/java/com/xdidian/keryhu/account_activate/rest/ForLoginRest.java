@@ -34,11 +34,7 @@ public class ForLoginRest {
   /**
    * 
    * 这个方法是login的后台，后台遇到email未激活的用户，调用此方法
-   * 
    *  如果激活超时，那么就返回roles（email不存在，默认是判断为超时，内含了自动发送消息去删除此user）
-   * 
-   * 
-   * 
    * 如果email不存在于emailActivatedToken ，采取激活超期的方法
    * 
    */
