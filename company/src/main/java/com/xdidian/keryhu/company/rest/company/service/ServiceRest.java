@@ -34,9 +34,9 @@ public class ServiceRest {
     public Page<Company> get(
 
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(value = "content", required = true) String content) {
+            @RequestParam(value = "content") String content) {
 
-        return repository.findByNamelike(content, pageable);
+        return repository.findByNameLike(content, pageable);
     }
 
 

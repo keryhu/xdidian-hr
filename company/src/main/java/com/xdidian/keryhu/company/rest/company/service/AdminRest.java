@@ -52,8 +52,6 @@ public class AdminRest {
         boolean registerTimeNotNull = registerTimeBegin != null
                 && registerTimeEnd != null;
 
-        boolean contentAndRegisterTimeAllNotNull = contentNotNull && registerTimeNotNull;
-
         Predicate contentPredicate = null;
         Predicate registerTimePredicate = null;
 
@@ -72,14 +70,14 @@ public class AdminRest {
         QCompany company = new QCompany("company");
 
         if (contentNotNull) {
-            contentPredicate = company.name.like(content);
+            contentPredicate = company.name.contains(content);
         }
 
         if (registerTimeNotNull) {
             registerTimePredicate = company.registerTime.after(registerTimeBegin)
                     .and(company.registerTime.before(registerTimeEnd));
             if(contentNotNull){
-                contentAndRegisterTimePredicate=company.name.like(content)
+                contentAndRegisterTimePredicate=company.name.contains(content)
                         .and(registerTimePredicate);
             }
         }

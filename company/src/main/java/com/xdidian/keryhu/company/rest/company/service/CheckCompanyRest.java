@@ -62,7 +62,8 @@ public class CheckCompanyRest {
             return repository.findAll(pageable);
         }
         else {
-            com.querydsl.core.types.Predicate predicate = company.name.like(content)
+            com.querydsl.core.types.Predicate predicate = company.name
+                    .contains(content)
                     .and(company.checked.eq(false));
 
             return repository.findAll(predicate, pageable);
