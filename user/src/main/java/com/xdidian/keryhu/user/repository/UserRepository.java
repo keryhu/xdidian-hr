@@ -39,8 +39,6 @@ public interface UserRepository extends MongoRepository<User, String>,
     Optional<User> findByEmailOrPhone(@Param("email") String email,
                                       @Param("phone") String phone);
 
-    Optional<User> findByEmailAndPhone(@Param("email") String email,
-                                       @Param("phone") String phone);
 
     Optional<User> findByEmailOrPhoneOrId(@Param("email") String email,
                                           @Param("phone") String phone,

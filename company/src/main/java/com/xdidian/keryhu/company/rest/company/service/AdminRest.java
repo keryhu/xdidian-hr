@@ -35,7 +35,7 @@ public class AdminRest {
     private final MessageSource messageSource;
 
     /**
-     * 新地点的客服人员，根据公司的名字 搜索公司信息，这里的content指 公司名字
+     * 新地点的客服人员，根据公司的名字 搜索公司信息，这里的content指 公司名字 关键字
      */
     @GetMapping("/admin/queryCompanyWithPage")
     public Page<Company> get(
@@ -72,14 +72,14 @@ public class AdminRest {
         QCompany company = new QCompany("company");
 
         if (contentNotNull) {
-            contentPredicate = company.name.eq(content);
+            contentPredicate = company.name.like(content);
         }
 
         if (registerTimeNotNull) {
             registerTimePredicate = company.registerTime.after(registerTimeBegin)
                     .and(company.registerTime.before(registerTimeEnd));
             if(contentNotNull){
-                contentAndRegisterTimePredicate=company.name.eq(content)
+                contentAndRegisterTimePredicate=company.name.like(content)
                         .and(registerTimePredicate);
             }
         }

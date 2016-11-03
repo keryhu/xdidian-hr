@@ -7,22 +7,26 @@ service package  表示只有新地点的客服或管理员才可以操作的res
       
            新地点的管理人才可以操作的 rest
            
-           "/admin/queryCompanyWithPage"   根据条件，查询公司的信息，返回page
+           "/admin/queryCompanyWithPage"   根据条件，查询公司的信息，返回page,可查询公司名字关键字
            
 
       CheckCompanyRest   需要权限，新地点的客服或管理人
          
-           "/service/check-company-resolve"
            
            新地点的工作人员，审核公司注册资料的 rest
            
       serviceRest   新地点的管理人或客服都可以操作
       
            "/service/queryCompanyWithPage"
-           根据公司的名字 搜索公司信息 返回page
+           根据公司的名字 搜索公司信息 返回page    可查询公司名字关键字
            
            "/service/queryUncheckedCompanyWithPage"
            搜索所有未审核的公司   新地点的客服人员和工作人员，都使用这个url和方法。
+           可查询公司名字关键字
+           
+           
+           "/service/check-company"
+           新地点的工作人员，审核新注册公司材料的post 的rest
 
      
 ApplyCompanyAgainRest

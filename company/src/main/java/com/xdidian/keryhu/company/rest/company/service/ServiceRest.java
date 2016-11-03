@@ -1,6 +1,8 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
+import com.querydsl.core.types.Predicate;
 import com.xdidian.keryhu.company.domain.company.Company;
+import com.xdidian.keryhu.company.domain.company.QCompany;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,28 +28,18 @@ public class ServiceRest {
 
 
     /**
-     * 新地点的客服人员，根据公司的名字 搜索公司信息
+     * 新地点的客服人员，根据公司的名字 搜索公司信息,查询的时候，实现输入公司名字的关键字即可查询
      */
     @GetMapping("/service/queryCompanyWithPage")
     public Page<Company> get(
 
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("name") String name) {
+            @RequestParam(value = "content", required = true) String content) {
 
-        return repository.findByName(name, pageable);
+        return repository.findByNamelike(content, pageable);
     }
 
 
-    // 搜索所有未审核的公司   新地点的客服人员和工作人员，都使用这个url和方法。
-    @GetMapping("/service/queryUncheckedCompanyWithPage")
-    public Page<Company> getUncheckedCompany(
-
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam("name") String name) {
-
-        //QCompany company = new QCompany("company");
-        return repository.findByName(name, pageable);
-    }
 
 
 }

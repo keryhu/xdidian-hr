@@ -1,6 +1,8 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
 import com.xdidian.keryhu.company.client.UserClient;
+import com.xdidian.keryhu.company.domain.company.Company;
+import com.xdidian.keryhu.company.domain.company.QCompany;
 import com.xdidian.keryhu.company.domain.company.check.CheckCompanySignupInfoDto;
 import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.feign.EmailAndPhoneDto;
@@ -11,6 +13,10 @@ import com.xdidian.keryhu.domain.CheckType;
 import com.xdidian.keryhu.domain.company.CheckCompanyDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +49,25 @@ public class CheckCompanyRest {
      * 当新地点的客服人员，或者管理人员,进入／service/check-company，审核新的注册公司的时候，促发的rest，
      * 审核后的结果，要不审核通过，要不拒绝，填写拒绝理由给 前台。
      */
-    @GetMapping("/service/check-company-resolve")
-    public ResponseEntity<?> getAllUncheckedCompany() {
+    // 搜索所有未审核的公司   新地点的客服人员和工作人员，都使用这个url和方法。
+    @GetMapping("/service/queryUncheckedCompanyWithPage")
+    public Page<Company> getUncheckedCompany(
 
-        return ResponseEntity.ok(companyService.findUncheckedCompany());
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "content", required = false) String content) {
+
+
+        QCompany company = new QCompany("company");
+        if(content==null){
+            return repository.findAll(pageable);
+        }
+        else {
+            com.querydsl.core.types.Predicate predicate = company.name.like(content)
+                    .and(company.checked.eq(false));
+
+            return repository.findAll(predicate, pageable);
+        }
+
     }
 
 
@@ -87,8 +108,8 @@ public class CheckCompanyRest {
             @RequestHeader("Authorization") String token) {
 
 
-        Assert.notNull(dto.getCompanyId(),"companyId 必填！");
-        Assert.isTrue(repository.findById(dto.getCompanyId()).isPresent(),"companyId 无效！");
+        Assert.notNull(dto.getCompanyId(), "companyId 必填！");
+        Assert.isTrue(repository.findById(dto.getCompanyId()).isPresent(), "companyId 无效！");
         Assert.notNull(dto.getCheckType(), "checkType不能为空");
         // 如果是拒绝了，那么必需提供拒绝的理由
         if (dto.getCheckType().equals(CheckType.REJECT)) {
@@ -101,15 +122,14 @@ public class CheckCompanyRest {
         }
 
 
-
         Map<String, Boolean> map = new HashMap<>();
 
         // 为什么需要 repostiroy.findById。因为需要通过companyId，查找到他的adminId，
         // 再找到注册申请人的email，phone，这样同意或拒绝申请材料，才可以通知到他
 
         // 将本地的company对象，转为CheckCompanyDto，方便发送message出去。
-        CheckCompanyDto checkCompanyDto=repository.findById(dto.getCompanyId())
-                .map(e->{
+        CheckCompanyDto checkCompanyDto = repository.findById(dto.getCompanyId())
+                .map(e -> {
                     CheckCompanyDto d = new CheckCompanyDto();
                     String userId = e.getAdminId();
                     EmailAndPhoneDto ep = userClient.getEmailAndPhoneById(userId, token);
@@ -119,10 +139,9 @@ public class CheckCompanyRest {
                     d.setUserId(userId);
                     d.setCheckType(dto.getCheckType());
                     // 如果是同意了申请，那么更新数据库资料
-                    if(dto.getCheckType().equals(CheckType.AGREE)){
+                    if (dto.getCheckType().equals(CheckType.AGREE)) {
                         e.setChecked(true);
-                    }
-                    else {
+                    } else {
                         e.setChecked(false);
                         e.setRejects(dto.getRejects());
                     }

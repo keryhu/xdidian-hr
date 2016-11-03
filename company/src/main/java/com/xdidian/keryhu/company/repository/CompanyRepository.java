@@ -32,4 +32,5 @@ public interface CompanyRepository extends MongoRepository<Company, String>,
 
     Page<Company> findByName(String name, Pageable pageable);
 
+    Page<Company> findByNamelike(String name, Pageable pageable);
 }
