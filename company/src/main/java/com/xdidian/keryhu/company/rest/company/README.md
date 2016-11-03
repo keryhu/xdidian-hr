@@ -27,6 +27,10 @@ service package  表示只有新地点的客服或管理员才可以操作的res
            
            "/service/check-company"
            新地点的工作人员，审核新注册公司材料的post 的rest
+           
+           "/service/queryNewCompanyInfoByCompanyId"
+           新地点的工作人员， 审核新注册公司，点击某一行，查看详情的时候，需要获取
+           具体的注册信息，就是此rest
 
      
 ApplyCompanyAgainRest

@@ -49,9 +49,8 @@ public class CompanyRest {
     private final NewCompanyProducer newCompanyProducer;
 
     /**
-     *
      * 用户登录后，如果还没有公司的情况下，如果想创建公司，那么此就是一个提交的的rest
-     *第一步创建公司，需要提交的信息为： 公司名字，公司地址，公司管理员的userId，默认是当前user，公司营业执照图片)
+     * 第一步创建公司，需要提交的信息为： 公司名字，公司地址，公司管理员的userId，默认是当前user，公司营业执照图片)
      * <p>
      * 需要验证的信息有：
      * 1  公司名字是否已经存在，如果存在报错
@@ -153,9 +152,6 @@ public class CompanyRest {
     }
 
 
-
-
-
     /**
      * 公司注册时候，查看公司名字是否已经注册过，还有申请加入公司的时候，查看公司名字是否存在
      *
@@ -163,12 +159,13 @@ public class CompanyRest {
      * @return
      */
 
-    @GetMapping("/company/isCompanyExist")
-    public ResponseEntity<?> isCompanyExist(@RequestParam("name") String name) {
+    @GetMapping("/company/findCompanyExistByName")
+    public ResponseEntity<?> findCompanyExistByName(@RequestParam("name") String name) {
 
         boolean e = repository.findByName(name).isPresent();
         return ResponseEntity.ok(e);
     }
+
 
 
     /**
@@ -254,8 +251,8 @@ public class CompanyRest {
         NewCompanyWaitCheckedDto dtos =
                 companyService.findUncheckedCompany(ids)
                         .stream()
-                .findFirst()
-                .orElse(null);
+                        .findFirst()
+                        .orElse(null);
 
         return ResponseEntity.ok(dtos);
     }

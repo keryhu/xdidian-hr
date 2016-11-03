@@ -20,7 +20,6 @@ import org.springframework.util.Assert;
 public class ConvertUtil {
 
 
-
     private final FileService fileService = new FileService();
     public Function<String, CompanyIndustry> stringToCompanyIndustry =
             x -> {
@@ -137,7 +136,8 @@ public class ConvertUtil {
                 return company;
             };
 
-    // 将company数据库对象，转为前台需要审核的公司资料的数据，
+    // 将company数据库对象，转为前台需要审核的公司资料的数据，这个用在会员自己查看审核后的材料
+    //  和新地点的客服人员，审核材料，都是用这一个
     public Function<Company, NewCompanyWaitCheckedDto> companyToNewCompanyWaitCheckedDto =
             x -> {
                 NewCompanyWaitCheckedDto dto = new NewCompanyWaitCheckedDto();
@@ -158,11 +158,12 @@ public class ConvertUtil {
                 dto.setBusinessLicenseType(fileService.getTypeFromImgPath(x.getBusinessLicensePath()));
                 dto.setIntruductionType(fileService.getTypeFromImgPath(x.getIntruductionPath()));
 
-                if (x.getRejects()!= null) {
+                if (x.getRejects() != null) {
                     dto.setRejects(x.getRejects());
                 }
                 return dto;
             };
+
 
 
 }
