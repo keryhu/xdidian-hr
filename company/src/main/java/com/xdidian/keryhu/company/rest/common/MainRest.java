@@ -1,7 +1,12 @@
 package com.xdidian.keryhu.company.rest.common;
 
+import com.xdidian.keryhu.company.domain.address.Address;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xdidian.keryhu.company.domain.Department;
@@ -16,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Slf4j
 public class MainRest {
 
 
@@ -37,6 +43,25 @@ public class MainRest {
     return d;
 
   }
+
+
+  @GetMapping("/query/3")
+  public ResponseEntity<?> t(){
+    Address a=new Address();
+    a.setProvince("北京市");
+    a.setCity("市场区");
+    a.setCounty("嘉定区");
+    return ResponseEntity.ok(a);
+  }
+
+
+  @PostMapping("/query/4")
+  public void r(@RequestBody Address address){
+    log.info(String.valueOf(address));
+  }
+
+
+
 
 
 

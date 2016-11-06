@@ -22,7 +22,7 @@ import java.util.Map;
 public class NewCompanyWaitCheckedDto implements Serializable {
 
     private String name;   //公司名字
-    private Address address;   //包含省份,地级市，县的address
+    private String address;   //包含省份,地级市，县的address
     private String fullAddress;   // 自定义的address 全地址。
 
     private String companyIndustry;    //公司行业

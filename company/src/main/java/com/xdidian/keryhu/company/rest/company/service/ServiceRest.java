@@ -1,8 +1,7 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
-import com.querydsl.core.types.Predicate;
-import com.xdidian.keryhu.company.domain.company.Company;
-import com.xdidian.keryhu.company.domain.company.QCompany;
+import com.xdidian.keryhu.company.domain.company.check.CheckCompanyInfoForRead;
+import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyWaitCheckedDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import com.xdidian.keryhu.company.service.ConvertUtil;
@@ -48,14 +47,20 @@ public class ServiceRest {
      * 的时候，通过companyId，来获取他的提交材料，通过这个rest完成
      *
      * 这里返回的对象，用的是 带有 reject 参数的，没有问题，因为此时reject还没有值
+     * 这个为什么没有和 申请人查看 已提交材料的rest 整合，因为，这个需要的权限和那个不一样
+     * 另外一个不一样的地方，就是这里的参数是companyId，而那个是user id，不一样哦
+     *
      */
     @GetMapping("/service/queryNewCompanyInfoByCompanyId")
     public ResponseEntity<?> getRepository(
             @RequestParam(value = "companyId") String companyId) {
 
-        NewCompanyWaitCheckedDto dto =repository.findById(companyId)
-                .map(e->convertUtil.companyToNewCompanyWaitCheckedDto.apply(e))
+        CheckCompanyInfoForRead c=repository.findById(companyId)
+                .filter(e -> !e.isChecked())
+                .filter(e -> e.getRejects() == null || e.getRejects().isEmpty())
+                .map(e->convertUtil.companyToCheckCompanyInfoForRead.apply(e))
                 .orElse(null);
-        return ResponseEntity.ok(dto);
+
+        return ResponseEntity.ok(c);
     }
 }

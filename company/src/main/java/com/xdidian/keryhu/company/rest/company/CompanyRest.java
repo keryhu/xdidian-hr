@@ -2,14 +2,13 @@ package com.xdidian.keryhu.company.rest.company;
 
 import com.xdidian.keryhu.company.config.CreateDir;
 import com.xdidian.keryhu.company.config.propertiesConfig.NewCompanyProperties;
-import com.xdidian.keryhu.company.domain.company.*;
+import com.xdidian.keryhu.company.domain.company.check.CheckCompanyInfoForRead;
+import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyResolveInfo;
-import com.xdidian.keryhu.company.domain.company.create.NewCompanyWaitCheckedDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
-import com.xdidian.keryhu.company.service.AddressService;
 import com.xdidian.keryhu.company.service.CompanyService;
 import com.xdidian.keryhu.company.service.ConvertUtil;
 import com.xdidian.keryhu.company.stream.NewCompanyProducer;
@@ -43,7 +42,6 @@ public class CompanyRest {
     private final CompanyService companyService;
     private final CreateDir createDir;
     private final ConvertUtil convertUtil;
-    private final AddressService addressService;
     private final NewCompanyProperties newCompanyProperties;
 
     private final NewCompanyProducer newCompanyProducer;
@@ -78,6 +76,8 @@ public class CompanyRest {
         String instruductionType = intruduction.getContentType().split("/")[1];  // 获取上传文件的格式
         dto.setBusinessLicense(businessLicense);
         dto.setIntruduction(intruduction);
+
+        log.info(String.valueOf(dto));
 
         companyService.validateNewCompanyPost(dto);
 
@@ -167,23 +167,26 @@ public class CompanyRest {
     }
 
 
-
     /**
-     * 当打开  新建 公司帐户 页面的时候，，首先需要 加载 3个信息数据
-     * 1  所有的 省市，直辖市的 数据
-     * 2  所有的公司行业数据
-     * 3  所有的公司性质数据
+     * 当打开  新建 公司帐户 页面的时候，，首先需要 加载 2个信息数据
+     * 1  所有的公司行业数据
+     * 2  所有的公司性质数据
+     * <p>
+     * 或者新地点的工作人员 审核公司的时候，需要首先 获取该companyId，之前有没有注册过，又没被拒绝过。
+     * <p>
+     * 如果 参数中，传递了companyId，那说明是新地点的工作人员来之前的。，需要获取该公司的基础信息，
+     * 有没有被注册过。
      *
      * @return
      */
 
-    @GetMapping("/company/createCompanyResolveInfo")
-    public ResponseEntity<?> NewCompanyResolveInfo() {
+    @GetMapping("/company/getCheckCompanyCommonInfo")
+    public ResponseEntity<?> getCheckCompanyCommonInfo(
+            @RequestParam(value = "companyId", required = false) String companyId
+    ) {
 
         NewCompanyResolveInfo info = new NewCompanyResolveInfo();
 
-        //加入所有的省份
-        info.setProvinces(addressService.getProvinces());
 
         // 加入所有的 行业名字。
 
@@ -201,8 +204,14 @@ public class CompanyRest {
         }
 
         info.setEnterpriseNatures(ee);
+        String adminId = null;
 
-        String adminId = SecurityUtils.getCurrentLogin();
+        if (companyId == null) {
+            adminId = SecurityUtils.getCurrentLogin();
+        } else {
+            adminId = companyId;
+        }
+
 
         //该用户 注册 公司 数量不能超过 规定的最大数量。
         long newCompanyQuantity = repository.findByAdminId(adminId)
@@ -213,7 +222,13 @@ public class CompanyRest {
         boolean hasRegister = repository.findByAdminId(adminId)
                 .stream()
                 .filter(n -> n != null)
-                .anyMatch(n -> !n.isChecked());
+                .anyMatch(n -> (!n.isChecked())
+                        && (n.getRejects() == null || n.getRejects().isEmpty()));
+
+        boolean hasRejected = repository.findByAdminId(adminId)
+                .stream()
+                .filter(n -> n != null)
+                .anyMatch(n -> (!n.isChecked()) && n.getRejects() != null);
 
 
         String msg = new StringBuffer("最多只能注册")
@@ -223,6 +238,8 @@ public class CompanyRest {
 
         if (hasRegister) {
             info.setNewCompanyErrMsg("您已经提交过公司帐户申请，请等待审核！");
+        } else if (hasRejected) {
+            info.setNewCompanyErrMsg("您已经申请的材料不符合要求，请修改后重新提交！");
         } else if (newCompanyQuantity > newCompanyProperties.getMaxNewCompanyQuantity()) {
             info.setNewCompanyErrMsg(msg);
         } else {
@@ -240,21 +257,24 @@ public class CompanyRest {
 
 
     //客户自己，当点击 新建公司的时候，首先需要 查看系统中是否存在 未审核的自己注册的公司。
+    // 为什么这个 不和新地点的人员审核公司的rest 重合，，因为这个申请人查看的rest
+    // 只需要本人登录权限，而新地点审核的rest需要新地点的客服 以上的权限，所以分开了
+    //  另外一个不同点就是，这里的参数是需要user 的id，而另外一个需要的companyId
     @GetMapping("/company/findUncheckedCompanyBySelf")
     public ResponseEntity<?> companyChecked() {
 
         // 将useId转为 string 数组。
         String id = SecurityUtils.getCurrentLogin();
-        String[] ids = {id};
-        log.info("id is : " + ids[0]);
 
-        NewCompanyWaitCheckedDto dtos =
-                companyService.findUncheckedCompany(ids)
-                        .stream()
-                        .findFirst()
-                        .orElse(null);
+        CheckCompanyInfoForRead c=repository.findByAdminId(id)
+                .stream()
+                .filter(e -> !e.isChecked())
+                .filter(e -> e.getRejects() == null || e.getRejects().isEmpty())
+                .findFirst()
+                .map(e->convertUtil.companyToCheckCompanyInfoForRead.apply(e))
+                .orElse(null);
 
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(c);
     }
 
 

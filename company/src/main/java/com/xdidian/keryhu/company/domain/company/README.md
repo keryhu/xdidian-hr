@@ -14,13 +14,14 @@
          
    check package 是新地点的管理人员或客服审核注册公司的材料，所需要的实体
    
+   common  package  最基本的company domain
    
    -----------------------------------------------------------------------------
          
    address package 是包含省份，市县的地址。 areaData 是从统计局下载的全国的地址数据（code，name）
    
    
-   comapny   是最基本的保存数据库的对象company
+ 
    
    constan  是常量数组，目前里面有一个  UN_CHECKED_COMPANY_KEYS 未审核的公司的数组keys
    

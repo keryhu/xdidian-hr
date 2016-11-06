@@ -10,9 +10,12 @@ import com.xdidian.keryhu.company.service.AddressService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.stream.Collectors;
+
 
 /**
  * 获取全国，省份的 直辖市, 自治区)
+ *
  * @date 2016年8月15日 下午3:40:25
  */
 
@@ -55,6 +58,7 @@ public class AddressRest {
 
         return ResponseEntity.ok(addressService.getCounties(code));
     }
+
 
 
 }

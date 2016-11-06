@@ -1,4 +1,4 @@
-package com.xdidian.keryhu.company.domain.company;
+package com.xdidian.keryhu.company.domain.company.common;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
 import com.xdidian.keryhu.company.client.UserClient;
-import com.xdidian.keryhu.company.domain.company.Company;
+import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.QCompany;
 import com.xdidian.keryhu.company.domain.company.check.CheckCompanySignupInfoDto;
 import com.xdidian.keryhu.company.domain.company.check.Reject;

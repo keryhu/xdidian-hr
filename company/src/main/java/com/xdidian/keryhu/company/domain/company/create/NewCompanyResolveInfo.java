@@ -20,8 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 public class NewCompanyResolveInfo implements Serializable {
 
-    private List<AreaData> provinces;   //所有的省份
-
     private List<String> companyIndustries;   //所有的 公司行业 名字的 list
 
     private List<String>  enterpriseNatures;   //所有的 公司性质  名字的  list

@@ -4,7 +4,11 @@ import java.time.LocalDateTime;
 import java.util.function.Function;
 
 
-import com.xdidian.keryhu.company.domain.company.*;
+import com.xdidian.keryhu.company.domain.address.Address;
+import com.xdidian.keryhu.company.domain.company.check.CheckCompanyInfoForRead;
+import com.xdidian.keryhu.company.domain.company.common.CheckCompanyByteItem;
+import com.xdidian.keryhu.company.domain.company.common.CheckCompanyStringItem;
+import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
@@ -124,7 +128,8 @@ public class ConvertUtil {
                 Company company = new Company();
                 company.setName(x.getName());
                 company.setAdminId(x.getAdminId());
-                company.setAddress(x.getAddress());
+                Address a = this.stringToAddress.apply(x.getAddress());
+                company.setAddress(a);
                 company.setFullAddress(x.getFullAddress());
                 company.setRegisterTime(LocalDateTime.now());
                 CompanyIndustry ci = this.stringToCompanyIndustry.apply(x.getCompanyIndustry());
@@ -144,7 +149,8 @@ public class ConvertUtil {
                 dto.setName(x.getName());
                 dto.setCompanyIndustry(x.getCompanyIndustry().getName());
                 dto.setEnterpriseNature(x.getEnterpriseNature().getName());
-                dto.setAddress(x.getAddress());
+                String a = this.addressToString.apply(x.getAddress());
+                dto.setAddress(a);
                 dto.setFullAddress(x.getFullAddress());
                 // 将  image path 转为 base64， 格式还是原来的图片格式
 
@@ -164,6 +170,76 @@ public class ConvertUtil {
                 return dto;
             };
 
+    // 将company 对象转为 CheckCompanyInfoForRead，方便前台会员注册完公司，查看已经注册了的公司信息，
+    // 新地点的工作人员，审核公司资料的时候，查看公司信息
+    public Function<Company, CheckCompanyInfoForRead> companyToCheckCompanyInfoForRead =
+            x -> {
+                CheckCompanyInfoForRead c = new CheckCompanyInfoForRead();
+                CheckCompanyStringItem name=new CheckCompanyStringItem();
+                name.setValue(x.getName());
+                c.setName(name);
+
+                CheckCompanyStringItem address=new CheckCompanyStringItem();
+                String a = this.addressToString.apply(x.getAddress());
+                address.setValue(a);
+                c.setAddress(address);
+
+                CheckCompanyStringItem fullAddress=new CheckCompanyStringItem();
+                fullAddress.setValue(x.getFullAddress());
+                c.setFullAddress(fullAddress);
+
+                CheckCompanyStringItem companyIndustry=new CheckCompanyStringItem();
+                companyIndustry.setValue(x.getCompanyIndustry().getName());
+                c.setCompanyIndustry(companyIndustry);
+
+                CheckCompanyStringItem enterpriseNature=new CheckCompanyStringItem();
+                enterpriseNature.setValue(x.getEnterpriseNature().getName());
+                c.setEnterpriseNature(enterpriseNature);
+
+                // 将  image path 转为 base64， 格式还是原来的图片格式
+
+                byte[] bb = fileService.filePathToOriginalByte(x.getBusinessLicensePath());
+                byte[] bi = fileService.filePathToOriginalByte(x.getIntruductionPath());
+
+                CheckCompanyByteItem businessLicense=new CheckCompanyByteItem();
+                businessLicense.setValue(bb);
+                c.setBusinessLicense(businessLicense);
+
+                CheckCompanyByteItem intruduction=new CheckCompanyByteItem();
+                intruduction.setValue(bi);
+                c.setIntruduction(intruduction);
+
+                //获取img 的图片格式
+                c.setBusinessLicenseType(fileService.getTypeFromImgPath(x.getBusinessLicensePath()));
+                c.setIntruductionType(fileService.getTypeFromImgPath(x.getIntruductionPath()));
+
+                return c;
+            };
+
+
+    // string "省 ， 地级市， 县" 转 address 对象，
+    public Function<String, Address> stringToAddress =
+            x -> {
+                Address address = new Address();
+                String[] m = x.split(",");
+                address.setProvince(m[0]);
+                address.setCity(m[1]);
+                address.setCounty(m[2]);
+                return address;
+            };
+
+
+    //  address 对象 转 string "省 ， 地级市， 县" ，
+    public Function<Address, String> addressToString =
+            x -> {
+                Address address = new Address();
+                return new StringBuffer(x.getProvince())
+                        .append(" ")
+                        .append(x.getCity())
+                        .append(" ")
+                        .append(x.getCounty())
+                        .toString();
+            };
 
 
 }

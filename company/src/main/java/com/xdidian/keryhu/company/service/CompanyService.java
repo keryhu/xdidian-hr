@@ -15,7 +15,8 @@ public interface CompanyService {
      void validateNewCompanyPost(final NewCompanyDto dto);
 
     //查询未审核的公司，如果传递了参数 adminId，那么就查询此adminId下的未审核的公司，如果未提供 adminId，那么就查询所有的
-     List<NewCompanyWaitCheckedDto> findUncheckedCompany(final String... adminId);
+     NewCompanyWaitCheckedDto findUncheckedCompany(final String adminId);
+
 
 
 }

@@ -2,7 +2,7 @@ package com.xdidian.keryhu.company.rest.company.service;
 
 import com.mysema.commons.lang.Assert;
 import com.querydsl.core.types.Predicate;
-import com.xdidian.keryhu.company.domain.company.Company;
+import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.QCompany;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
