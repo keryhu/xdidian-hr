@@ -34,6 +34,7 @@ public class ServiceRest {
             @RequestParam("content") String content) {
 
 
-        return repository.findByEmailOrPhoneOrNameAllIgnoreCase(content, content, content, pageable);
+        return repository.findByEmailOrPhoneOrNameOrIdAllIgnoreCase(
+                content, content, content,content, pageable);
     }
 }

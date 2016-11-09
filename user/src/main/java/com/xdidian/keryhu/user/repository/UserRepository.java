@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.Optional;
 
 
-
-
 /**
+ * @author : keryHu keryhu@hotmail.com
  * @Description : user 的数据库操作
  * @date : 2016年6月18日 下午9:20:55
- * @author : keryHu keryhu@hotmail.com
  */
 
 @RepositoryRestResource(collectionResourceRel = "user", path = "users", exported = false)
@@ -49,10 +47,10 @@ public interface UserRepository extends MongoRepository<User, String>,
                                            @Param("companyId") List<String> companyIds);
 
 
-    // 根据email或phone或name， 搜索用户，返回page 对象。 新地点的客服人员使用
-    Page<User> findByEmailOrPhoneOrNameAllIgnoreCase(String email, String phone, String name,
-                                                     Pageable pageable);
-
+    // 根据email或phone或name,或userId， 搜索用户，返回page 对象。 新地点的客服人员使用
+    Page<User> findByEmailOrPhoneOrNameOrIdAllIgnoreCase(
+            String email, String phone, String name, String id,
+            Pageable pageable);
 
 
 }

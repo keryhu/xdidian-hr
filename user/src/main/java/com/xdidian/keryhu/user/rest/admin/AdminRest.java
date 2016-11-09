@@ -119,7 +119,7 @@ public class AdminRest {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastLoginTimeEnd) {
 
 
-        boolean contentNotNull =content != null;
+        boolean contentNotNull = content != null;
         boolean registerTimeNotNull = registerTimeBegin != null
                 && registerTimeEnd != null;
 
@@ -170,7 +170,8 @@ public class AdminRest {
 
         if (contentNotNull) {
             contentPredicate = user.email.eq(content)
-                    .or(user.phone.eq(content)).or(user.name.eq(content));
+                    .or(user.phone.eq(content)).or(user.name.eq(content))
+                    .or(user.id.eq(content));
         }
 
 
@@ -202,6 +203,7 @@ public class AdminRest {
         if (contentAndRegisterTimeAndLastLoginTimeAllNotNull) {
             contentAndRegisterTimeAndLastLoginTimePredicate = user.email.eq(content)
                     .or(user.phone.eq(content)).or(user.name.eq(content))
+                    .or(user.id.eq(content))
                     .and(registerTimePredicate)
                     .and(lastLoginTimePredicate);
 
@@ -217,6 +219,7 @@ public class AdminRest {
         if (contentAndLastLoginTimeAllNotNull) {
             contentAndLastLoginTimePredicate = user.email.eq(content)
                     .or(user.phone.eq(content)).or(user.name.eq(content))
+                    .or(user.id.eq(content))
                     .and(lastLoginTimePredicate);
         }
 

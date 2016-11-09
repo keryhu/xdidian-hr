@@ -9,6 +9,9 @@ service package  表示只有新地点的客服或管理员才可以操作的res
            
            "/admin/queryCompanyWithPage"   根据条件，查询公司的信息，返回page,可查询公司名字关键字
            
+           "/service/queryUncheckedCompanyWithPage"
+           
+           新地点的客服人员，查询未审核的公司，返回page对象，也可以根据公司名字关键字搜索
 
       CheckCompanyRest   需要权限，新地点的客服或管理人
          
@@ -43,8 +46,6 @@ ApplyCompanyAgainRest
      
 CompanyRest
 
-    "/company/createCompany"
-    公司创建的rest
     
     "/company/isCompanyExist"
     
@@ -74,3 +75,26 @@ CompanyRest
         
         
     
+     
+    /company/findUncheckedCompanyAfterReject
+     
+      // 和上面那个类似，但是这个是申请人在材料被拒绝后，的rest
+         // 而且这里还实现了，，申请人 注册后，资料被驳回，再次查看申请材料的rest，这个可以查看reject
+        
+    
+CreateOrRecreateCompanyRest
+
+    创建公司和被拒绝后，再次编辑材料，申请注册公司。
+    
+     "/company/createCompany"
+        公司创建的rest
+        
+      "/company/createCompanyAfterReject"
+      
+      /**
+           * 当新公司的申请人，申请公司后，被拒绝，申请人打开提交材料，准备修改后，再次提交的rest
+           * <p>
+           * 验证提交参数的 具体方法：
+           * 检查reject，是否有该参数，如果有，那么检查提交的参数是否有此参数，且验证是否符合要求。
+           * 新地点对于 注册公司已经过几次申请，已经之前被拒绝的理由不做保存数据库，
+           * 当用户编辑修改后，再次提交，则覆盖原来的申请信息，原来的被拒绝的信息也将被清除

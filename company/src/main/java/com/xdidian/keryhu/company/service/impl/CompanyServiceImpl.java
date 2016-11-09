@@ -1,8 +1,6 @@
 package com.xdidian.keryhu.company.service.impl;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.xdidian.keryhu.company.client.UserClient;
 import com.xdidian.keryhu.company.config.propertiesConfig.ImageResizeProperties;
@@ -10,7 +8,6 @@ import com.xdidian.keryhu.company.domain.*;
 import com.xdidian.keryhu.company.domain.address.Address;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
 import com.xdidian.keryhu.company.config.propertiesConfig.NewCompanyProperties;
-import com.xdidian.keryhu.company.domain.company.create.NewCompanyWaitCheckedDto;
 import com.xdidian.keryhu.company.service.AddressService;
 import com.xdidian.keryhu.company.service.CompanyService;
 import com.xdidian.keryhu.company.service.ConvertUtil;
@@ -137,22 +134,6 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 
-    //查询未审核的公司，如果传递了参数 adminId，那么就查询此adminId下的未审核的公司，
-    // 必需是unchecked 且reject 为 null
-
-    @Override
-    public NewCompanyWaitCheckedDto findUncheckedCompany(String adminId) {
-
-
-            return repository.findByAdminId(adminId).stream()
-                    .filter(e -> !e.isChecked())
-                    .filter(e -> e.getRejects() == null || e.getRejects().isEmpty())
-                    .findFirst()
-                    .map(e -> convertUtil.companyToNewCompanyWaitCheckedDto.apply(e))
-                    .orElse(null);
-
-
-    }
 
 
     /**

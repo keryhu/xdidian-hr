@@ -1,36 +1,22 @@
 package com.xdidian.keryhu.company.rest.company;
 
-import com.xdidian.keryhu.company.config.CreateDir;
 import com.xdidian.keryhu.company.config.propertiesConfig.NewCompanyProperties;
 import com.xdidian.keryhu.company.domain.company.check.CheckCompanyInfoForRead;
-import com.xdidian.keryhu.company.domain.company.common.Company;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
-import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyResolveInfo;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
-import com.xdidian.keryhu.company.service.CompanyService;
 import com.xdidian.keryhu.company.service.ConvertUtil;
-import com.xdidian.keryhu.company.stream.NewCompanyProducer;
 import com.xdidian.keryhu.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
-
-import static com.xdidian.keryhu.util.Constants.NEW_COMPANY;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -39,117 +25,8 @@ import static com.xdidian.keryhu.util.Constants.NEW_COMPANY;
 public class CompanyRest {
 
     private final CompanyRepository repository;
-    private final CompanyService companyService;
-    private final CreateDir createDir;
     private final ConvertUtil convertUtil;
     private final NewCompanyProperties newCompanyProperties;
-
-    private final NewCompanyProducer newCompanyProducer;
-
-    /**
-     * 用户登录后，如果还没有公司的情况下，如果想创建公司，那么此就是一个提交的的rest
-     * 第一步创建公司，需要提交的信息为： 公司名字，公司地址，公司管理员的userId，默认是当前user，公司营业执照图片)
-     * <p>
-     * 需要验证的信息有：
-     * 1  公司名字是否已经存在，如果存在报错
-     * 2  公司地址提交的是否符合要求   省份，地级市，县，是否是规定的名字
-     * 3  管理员id，是否存在数据库
-     * 4  营业执照 ，介绍信是否存在
-     * 5  公司性质，公司行业不能位空
-     * <p>
-     * ## 营业执照和介绍信，不执行resize，只限制 最大不能超过500kb，原来是什么格式，还是保存成什么格式。例如
-     * jpeg，还是保存为jpeg， png还是png
-     * <p>
-     * 6  如果注册成功后， 且审核通过。要发送  此userId 是公司管理员的 信息给  userAccount ，让userAccount更新权限。
-     */
-
-
-    @PostMapping("/company/createCompany")
-    public ResponseEntity<?> newCompany(@RequestPart("body") final NewCompanyDto dto,
-                                        @RequestPart("businessLicense") MultipartFile businessLicense,
-                                        @RequestPart("intruduction") MultipartFile intruduction) throws IOException {
-
-        Assert.notNull(businessLicense, "营业执照不能为空");
-        Assert.notNull(intruduction, "介绍信不能为空");
-
-        String businessType = businessLicense.getContentType().split("/")[1];   //获取上传文件的格式
-        String instruductionType = intruduction.getContentType().split("/")[1];  // 获取上传文件的格式
-        dto.setBusinessLicense(businessLicense);
-        dto.setIntruduction(intruduction);
-
-        log.info(String.valueOf(dto));
-
-        companyService.validateNewCompanyPost(dto);
-
-        Map<String, Boolean> map = new HashMap<String, Boolean>();
-        log.info("新建公司，提交的注册信息，已经验证验证成功，提交的信息为： " + dto.toString());
-
-
-        Company company = convertUtil.newCompanyDtoToCompany.apply(dto);
-
-        // 经过String 转enum后，再次验证他们的结果
-        Assert.notNull(company.getCompanyIndustry(), "公司行业不正确！");
-        Assert.notNull(company.getEnterpriseNature(), "公司性质不正确！");
-
-        String businessLicenseDir = new StringBuffer(createDir.getCompanyInfo())
-                .append("/")
-                .append(company.getId())
-                .append("/businessLicense")
-                .toString();
-
-        //介绍信图片保存的 文件夹
-        String intruductionDir = new StringBuffer(createDir.getCompanyInfo())
-                .append("/")
-                .append(company.getId())
-                .append("/intruduction")
-                .toString();
-
-        File bf = new File(businessLicenseDir);
-        if (!bf.exists()) {
-            bf.mkdirs();  //创建多层目录，包含子目录
-        }
-
-        File inf = new File(intruductionDir);
-        if (!inf.exists()) {
-            inf.mkdirs();  //创建多层目录，包含子目录
-        }
-
-        // 设置各自的 文件全名，包含了  png名字
-        String businessLicenseImgPath = new StringBuffer(businessLicenseDir)
-                .append("/")
-                .append(System.currentTimeMillis())
-                .append(".")
-                .append(businessType)
-                .toString();
-
-
-        String intruductionImgPath = new StringBuffer(intruductionDir)
-                .append("/")
-                .append(dto.getAdminId())
-                .append(".")
-                .append(instruductionType)
-                .toString();
-
-        BufferedImage businessSource = ImageIO.read(businessLicense.getInputStream());
-        BufferedImage intruductionSource = ImageIO.read(intruduction.getInputStream());
-
-        //保存到本地
-        ImageIO.write(businessSource, businessType, new File(businessLicenseImgPath));
-        ImageIO.write(intruductionSource, instruductionType, new File(intruductionImgPath));
-
-
-        company.setBusinessLicensePath(businessLicenseImgPath);
-        company.setIntruductionPath(intruductionImgPath);
-
-        repository.save(company);
-
-        map.put("result", true);
-
-        //发送message给websocket app
-        newCompanyProducer.send(NEW_COMPANY);
-
-        return ResponseEntity.ok(map);
-    }
 
 
     /**
@@ -260,6 +137,8 @@ public class CompanyRest {
     // 为什么这个 不和新地点的人员审核公司的rest 重合，，因为这个申请人查看的rest
     // 只需要本人登录权限，而新地点审核的rest需要新地点的客服 以上的权限，所以分开了
     //  另外一个不同点就是，这里的参数是需要user 的id，而另外一个需要的companyId
+
+
     @GetMapping("/company/findUncheckedCompanyBySelf")
     public ResponseEntity<?> companyChecked() {
 
@@ -277,5 +156,24 @@ public class CompanyRest {
         return ResponseEntity.ok(c);
     }
 
+
+    // 和上面那个类似，但是这个是申请人在材料被拒绝后，的rest
+    // 而且这里还实现了，，申请人 注册后，资料被驳回，再次查看申请材料的rest，这个可以查看reject
+    @GetMapping("/company/findUncheckedCompanyAfterReject")
+    public ResponseEntity<?> companyCheckedAfterReject() {
+
+        // 将useId转为 string 数组。
+        String id = SecurityUtils.getCurrentLogin();
+
+        CheckCompanyInfoForRead c=repository.findByAdminId(id)
+                .stream()
+                .filter(e -> !e.isChecked())
+                .filter(e -> e.getRejects() !=null)
+                .findFirst()
+                .map(e->convertUtil.companyToCheckCompanyInfoForRead.apply(e))
+                .orElse(null);
+
+        return ResponseEntity.ok(c);
+    }
 
 }

@@ -132,8 +132,10 @@ public class MenuServiceImpl implements MenuService {
 
     //用户登录的时候，除了获取菜单，还有用户姓名，是否在company
     @Override
-    public ResponseWhenQueryMenus getMenuAndUserInfo(@Param("n") String userId, String token) {
+    public ResponseWhenQueryMenus getMenuAndUserInfo(
+            String userId, String token) {
         ResponseWhenQueryMenus responseWhenQueryMenus = new ResponseWhenQueryMenus();
+
         String name = userClient.getIsInCompanyAndName(userId, token).getPeopleName();
 
         responseWhenQueryMenus.setMenus(getMenu(userId, token));

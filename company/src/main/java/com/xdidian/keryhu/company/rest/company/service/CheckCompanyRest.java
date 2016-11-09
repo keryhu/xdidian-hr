@@ -1,22 +1,15 @@
 package com.xdidian.keryhu.company.rest.company.service;
 
 import com.xdidian.keryhu.company.client.UserClient;
-import com.xdidian.keryhu.company.domain.company.common.Company;
-import com.xdidian.keryhu.company.domain.company.QCompany;
 import com.xdidian.keryhu.company.domain.company.check.CheckCompanySignupInfoDto;
 import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.feign.EmailAndPhoneDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
-import com.xdidian.keryhu.company.service.CompanyService;
 import com.xdidian.keryhu.company.stream.CheckNewCompanyProducer;
 import com.xdidian.keryhu.domain.CheckType;
 import com.xdidian.keryhu.domain.company.CheckCompanyDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -36,40 +29,10 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CheckCompanyRest {
 
-    private final CompanyService companyService;
+
     private final CompanyRepository repository;
     private final UserClient userClient;
     private final CheckNewCompanyProducer checkNewCompanyProducer;
-
-    //
-
-    /**
-     * 此路由，需要新地点客服或者新地点管理员权限,此路由仅仅获取当前未审核公司的所有数据
-     * <p>
-     * 当新地点的客服人员，或者管理人员,进入／service/check-company，审核新的注册公司的时候，促发的rest，
-     * 审核后的结果，要不审核通过，要不拒绝，填写拒绝理由给 前台。
-     */
-    // 搜索所有未审核的公司   新地点的客服人员和工作人员，都使用这个url和方法。
-    @GetMapping("/service/queryUncheckedCompanyWithPage")
-    public Page<Company> getUncheckedCompany(
-
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(value = "content", required = false) String content) {
-
-
-        QCompany company = new QCompany("company");
-        if(content==null){
-            return repository.findAll(pageable);
-        }
-        else {
-            com.querydsl.core.types.Predicate predicate = company.name
-                    .contains(content)
-                    .and(company.checked.eq(false));
-
-            return repository.findAll(predicate, pageable);
-        }
-
-    }
 
 
     /**
@@ -101,6 +64,7 @@ public class CheckCompanyRest {
      * <p>
      * <p>
      * 提交的格式是：可选项： xx项目，拒绝原因：xxx；这是map<String,String>。
+     * 每一条拒绝的理由item不能重复
      */
 
     @PostMapping("/service/check-company")
@@ -110,16 +74,23 @@ public class CheckCompanyRest {
 
 
         Assert.notNull(dto.getCompanyId(), "companyId 必填！");
-        Assert.isTrue(repository.findById(dto.getCompanyId()).isPresent(), "companyId 无效！");
-        Assert.notNull(dto.getCheckType(), "checkType不能为空");
+        Assert.isTrue(repository.findById(dto.getCompanyId()).isPresent(),
+                "companyId 无效！");
+        Assert.notNull(dto.getCheckMethod(), "checkType不能为空");
         // 如果是拒绝了，那么必需提供拒绝的理由
-        if (dto.getCheckType().equals(CheckType.REJECT)) {
+        if (dto.getCheckMethod().equals(CheckType.REJECT)) {
 
             Assert.notNull(dto.getRejects(), "必需提供拒绝的理由！");
             // 每一个拒绝的理由中，必需提供
-            Predicate<Reject> rejectAllNotNull = x -> x.getItem() != null && x.getMessage() != null;
+            Predicate<Reject> rejectAllNotNull =
+                    x -> x.getItem() != null && x.getMessage() != null;
             boolean m = dto.getRejects().stream().allMatch(rejectAllNotNull);
             Assert.isTrue(m, "必需填写拒绝的条目和理由");
+            // 拒绝的item不能重复
+
+            boolean unique=dto.getRejects().stream().map(Reject::getItem)
+                    .allMatch(new HashSet<>()::add);
+            Assert.isTrue(unique, "拒绝的条目不能重复！");
         }
 
 
@@ -138,9 +109,9 @@ public class CheckCompanyRest {
                     d.setPhone(ep.getPhone());
                     d.setCompanyId(e.getId());
                     d.setUserId(userId);
-                    d.setCheckType(dto.getCheckType());
+                    d.setCheckType(dto.getCheckMethod());
                     // 如果是同意了申请，那么更新数据库资料
-                    if (dto.getCheckType().equals(CheckType.AGREE)) {
+                    if (dto.getCheckMethod().equals(CheckType.AGREE)) {
                         e.setChecked(true);
                     } else {
                         e.setChecked(false);

@@ -5,6 +5,6 @@
 
     /service/queryWithPage    返回的是 page对象
     
-    根据会员的姓名，email或phone，查找用户信息
+    根据会员的姓名，email或phone,userId，查找用户信息
 
 

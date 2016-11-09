@@ -22,7 +22,7 @@ public class CheckCompanySignupInfoDto implements Serializable {
 
     private String companyId;
 
-    private CheckType checkType;   //AGREE, REJECT
+    private CheckType checkMethod;   //AGREE, REJECT
 
     // 一个公司的注册申请，不符合要求的，可能由多个，所以是数组
 

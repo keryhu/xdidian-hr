@@ -32,6 +32,7 @@ public class CheckNewCompanyConsumer {
 
     @StreamListener(CheckNewCompanyInputChannel.NAME)
     public void receive(CheckCompanyDto dto) {
+        log.info(String.valueOf(dto));
         if (dto != null) {
             if (dto.getCheckType().equals(CheckType.AGREE)) {
 

@@ -12,6 +12,7 @@ import java.io.Serializable;
  *
  * 此class ，是为了方便，前台会员注册完公司，查看已经注册了的公司信息，
  * 新地点的工作人员，审核公司资料的时候，查看公司信息。
+ * 还有申请人事后，查看被拒绝的提交材料
  * 这些属性对象，有3种，
  * CheckCompanyStringItem value is string
  * CheckCompanyByteItem  value is byte【】
@@ -33,5 +34,6 @@ public class CheckCompanyInfoForRead implements Serializable {
 
     private String businessLicenseType;      // 营业执照的图片格式
     private String intruductionType;    //介绍信的图片格式
+
 
 }
