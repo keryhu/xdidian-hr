@@ -2,6 +2,8 @@
 
 这个方案是使用的 spring oauth2 stateless 和 angular2 ，携带 access——token的方案。
 
+因为 无法使用session，websocket，无法使用 发送给单个的某人，所以 这个方案暂停
+
 
 一 、 xdidian  micro server docker 
 这是自行开发企业项目的的github代码库
