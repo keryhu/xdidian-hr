@@ -6,8 +6,13 @@ import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.feign.EmailAndPhoneDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import com.xdidian.keryhu.company.stream.CheckNewCompanyProducer;
+import com.xdidian.keryhu.company.stream.WebsocketAndMessageProducer;
 import com.xdidian.keryhu.domain.CheckType;
 import com.xdidian.keryhu.domain.company.CheckCompanyDto;
+import com.xdidian.keryhu.domain.message.MessageCommunicateDto;
+import com.xdidian.keryhu.domain.message.Operate;
+import com.xdidian.keryhu.domain.message.ReadGroup;
+import com.xdidian.keryhu.domain.message.Subject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +38,7 @@ public class CheckCompanyRest {
     private final CompanyRepository repository;
     private final UserClient userClient;
     private final CheckNewCompanyProducer checkNewCompanyProducer;
+    private final WebsocketAndMessageProducer websocketAndMessageProducer;
 
 
     /**
@@ -88,7 +94,7 @@ public class CheckCompanyRest {
             Assert.isTrue(m, "必需填写拒绝的条目和理由");
             // 拒绝的item不能重复
 
-            boolean unique=dto.getRejects().stream().map(Reject::getItem)
+            boolean unique = dto.getRejects().stream().map(Reject::getItem)
                     .allMatch(new HashSet<>()::add);
             Assert.isTrue(unique, "拒绝的条目不能重复！");
         }
@@ -125,6 +131,32 @@ public class CheckCompanyRest {
 
         checkNewCompanyProducer.send(checkCompanyDto);
 
+        // 发送消息提醒 websocket message
+        MessageCommunicateDto messageCommunicateDto = new MessageCommunicateDto();
+
+        if (dto.getCheckMethod().equals(CheckType.AGREE)) {
+            // 如果审核成功，那么发送成功的消息通知 公司申请人
+            messageCommunicateDto.setSubject(Subject.APPROVE_NEW_COMPANY);
+            messageCommunicateDto.setOperate(Operate.ADD);
+            messageCommunicateDto.setUserId(checkCompanyDto.getUserId());
+            messageCommunicateDto.setReadGroup(ReadGroup.INDIVIDUAL);
+            websocketAndMessageProducer.send(messageCommunicateDto);
+
+        } else if (dto.getCheckMethod().equals(CheckType.REJECT)) {
+            // 如果审核失败，那么发送失败的消息通知 公司申请人
+            messageCommunicateDto.setSubject(Subject.REJECT_NEW_COMPANY);
+            messageCommunicateDto.setOperate(Operate.ADD);
+            messageCommunicateDto.setUserId(checkCompanyDto.getUserId());
+            messageCommunicateDto.setReadGroup(ReadGroup.INDIVIDUAL);
+            websocketAndMessageProducer.send(messageCommunicateDto);
+        }
+
+        //同时待审核公司，也要发送一条减1的message给 新地点的工作人员
+
+        messageCommunicateDto.setSubject(Subject.NEW_COMPANY);
+        messageCommunicateDto.setOperate(Operate.MINUS);
+        messageCommunicateDto.setReadGroup(ReadGroup.XDIDIAN);
+        websocketAndMessageProducer.send(messageCommunicateDto);
 
         //审核完成，发送结果给前台。
         map.put("result", true);

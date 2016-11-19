@@ -90,9 +90,8 @@ public class CompanyServiceImpl implements CompanyService {
         Assert.isTrue(userClient.isIdExist(dto.getAdminId()), "userId不存在");
 
         Assert.hasText(dto.getFullAddress(), "详细地址不能位空");
-
-        Assert.hasText(dto.getCompanyIndustry(), "公司行业不能位空");
-        Assert.hasText(dto.getEnterpriseNature(), "公司性质不能位空");
+        Assert.notNull(dto.getCompanyIndustry(),"公司行业不能位空");
+        Assert.notNull(dto.getEnterpriseNature(),"公司性质不能位空");
 
         Assert.isTrue(fileService.isImage(dto.getBusinessLicense()), "营业执照必需是image格式");
         Assert.isTrue(fileService.isImage(dto.getIntruduction()), "营业执照必需是image格式");

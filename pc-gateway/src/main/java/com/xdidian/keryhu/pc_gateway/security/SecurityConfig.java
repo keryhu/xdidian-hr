@@ -31,9 +31,9 @@ import java.io.IOException;
 import static com.xdidian.keryhu.util.Constants.READ_AND_WRITE_RESOURCE_ID;
 
 /**
+ * @author : keryHu keryhu@hotmail.com
  * @Description : SSO 主方法
  * @date : 2016年6月18日 下午9:12:22
- * @author : keryHu keryhu@hotmail.com
  */
 @Configuration
 @EnableResourceServer
@@ -41,70 +41,71 @@ import static com.xdidian.keryhu.util.Constants.READ_AND_WRITE_RESOURCE_ID;
 
 public class SecurityConfig implements ResourceServerConfigurer {
 
-  @Autowired
-  private RoleHierarchyImpl roleHierarchy;
+    @Autowired
+    private RoleHierarchyImpl roleHierarchy;
 
-  /**
-   * 调用spring security role 权限大小排序bean
-   */
-  private SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
-    DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler =
-        new DefaultWebSecurityExpressionHandler();
-    defaultWebSecurityExpressionHandler.setRoleHierarchy(roleHierarchy);
-    return defaultWebSecurityExpressionHandler;
-  }
+    /**
+     * 调用spring security role 权限大小排序bean
+     */
+    private SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
+        DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler =
+                new DefaultWebSecurityExpressionHandler();
+        defaultWebSecurityExpressionHandler.setRoleHierarchy(roleHierarchy);
+        return defaultWebSecurityExpressionHandler;
+    }
 
 
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
 
-  @Override
-  public void configure(HttpSecurity http) throws Exception {
+        // n内在配置信息在 ／admin 下，到时候加上权限
+        http.httpBasic().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).and().logout()
+                .permitAll().and().authorizeRequests().antMatchers("/**").permitAll()
+                // spring boot admin 配置变量
 
-    // n内在配置信息在 ／admin 下，到时候加上权限
-    http.httpBasic().disable()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS).and().logout()
-        .permitAll().and().authorizeRequests().antMatchers("/**").permitAll()
-        // spring boot admin 配置变量
-
-        .expressionHandler(webExpressionHandler()) // 权限排序
-        .anyRequest().authenticated().and().csrf().csrfTokenRepository(csrfTokenRepository()).and()
-        .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
+                .expressionHandler(webExpressionHandler()) // 权限排序
+                .anyRequest().authenticated()
+                .and().csrf().disable();
+        // .csrfTokenRepository(csrfTokenRepository()).and()
+        // .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
         // 增加这个的原因是，因为文件上传的时候需要。
-        .addFilterAfter(csrfHeaderFilter(), SessionManagementFilter.class);
-  }
+        //  .addFilterAfter(csrfHeaderFilter(), SessionManagementFilter.class);
+    }
 
-  /**
-   * csrf配置
-   */
-  private Filter csrfHeaderFilter() {
-    return new OncePerRequestFilter() {
-      @Override
-      protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-          FilterChain filterChain) throws ServletException, IOException {
-        CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        if (csrf != null) {
-          Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-          String token = csrf.getToken();
-          if (cookie == null || token != null && !token.equals(cookie.getValue())) {
-            cookie = new Cookie("XSRF-TOKEN", token);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-          }
-        }
-        filterChain.doFilter(request, response);
-      }
-    };
-  }
+    /**
+     * csrf配置
+     */
+    private Filter csrfHeaderFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                            FilterChain filterChain) throws ServletException, IOException {
+                CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+                if (csrf != null) {
+                    Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
+                    String token = csrf.getToken();
+                    if (cookie == null || token != null && !token.equals(cookie.getValue())) {
+                        cookie = new Cookie("XSRF-TOKEN", token);
+                        cookie.setPath("/");
+                        response.addCookie(cookie);
+                    }
+                }
+                filterChain.doFilter(request, response);
+            }
+        };
+    }
 
-  private CsrfTokenRepository csrfTokenRepository() {
-    HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-    repository.setHeaderName("X-XSRF-TOKEN");
-    return repository;
-  }
+    private CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
+    }
 
-  @Override
-  public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
 
-    resources.resourceId(READ_AND_WRITE_RESOURCE_ID);
-  }
+        resources.resourceId(READ_AND_WRITE_RESOURCE_ID);
+    }
 
 }

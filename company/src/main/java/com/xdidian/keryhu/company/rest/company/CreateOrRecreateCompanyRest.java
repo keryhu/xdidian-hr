@@ -2,19 +2,20 @@ package com.xdidian.keryhu.company.rest.company;
 
 import com.xdidian.keryhu.company.config.CreateDir;
 import com.xdidian.keryhu.company.config.propertiesConfig.ImageResizeProperties;
-import com.xdidian.keryhu.company.config.propertiesConfig.NewCompanyProperties;
 import com.xdidian.keryhu.company.domain.address.Address;
 import com.xdidian.keryhu.company.domain.company.check.CompanySignupItems;
 import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.company.common.Company;
-import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
-import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
 import com.xdidian.keryhu.company.domain.company.create.NewCompanyDto;
 import com.xdidian.keryhu.company.repository.CompanyRepository;
 import com.xdidian.keryhu.company.service.AddressService;
 import com.xdidian.keryhu.company.service.CompanyService;
 import com.xdidian.keryhu.company.service.ConvertUtil;
-import com.xdidian.keryhu.company.stream.NewCompanyProducer;
+import com.xdidian.keryhu.company.stream.WebsocketAndMessageProducer;
+import com.xdidian.keryhu.domain.message.MessageCommunicateDto;
+import com.xdidian.keryhu.domain.message.Operate;
+import com.xdidian.keryhu.domain.message.ReadGroup;
+import com.xdidian.keryhu.domain.message.Subject;
 import com.xdidian.keryhu.service.imageService.FileService;
 import com.xdidian.keryhu.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,10 +36,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static com.xdidian.keryhu.util.Constants.NEW_COMPANY;
 
 /**
  * Created by hushuming on 2016/11/8.
@@ -53,7 +54,7 @@ public class CreateOrRecreateCompanyRest {
     private final CreateDir createDir;
     private final ConvertUtil convertUtil;
     private final CompanyRepository repository;
-    private final NewCompanyProducer newCompanyProducer;
+    private final WebsocketAndMessageProducer producer;
     private final AddressService addressService;
     private final ImageResizeProperties imageResizeProperties;
     private final FileService fileService = new FileService();
@@ -81,6 +82,7 @@ public class CreateOrRecreateCompanyRest {
             @RequestPart("body") final NewCompanyDto dto,
             @RequestPart("businessLicense") MultipartFile businessLicense,
             @RequestPart("intruduction") MultipartFile intruduction) throws IOException {
+
 
         Assert.notNull(businessLicense, "营业执照不能为空");
         Assert.notNull(intruduction, "介绍信不能为空");
@@ -153,7 +155,11 @@ public class CreateOrRecreateCompanyRest {
         map.put("result", true);
 
         //发送message给websocket app
-        newCompanyProducer.send(NEW_COMPANY);
+        MessageCommunicateDto messageCommunicateDto=new MessageCommunicateDto();
+        messageCommunicateDto.setSubject(Subject.NEW_COMPANY);
+        messageCommunicateDto.setOperate(Operate.ADD);
+        messageCommunicateDto.setReadGroup(ReadGroup.XDIDIAN);
+        producer.send(messageCommunicateDto);
 
         return ResponseEntity.ok(map);
     }
@@ -184,7 +190,7 @@ public class CreateOrRecreateCompanyRest {
                 .filter(e -> e.getRejects() != null && !e.getRejects().isEmpty())
                 .findFirst()
                 .ifPresent(e -> {
-                    List<Reject> rejects = e.getRejects();
+                    Set<Reject> rejects = e.getRejects();
                     long maxSize = imageResizeProperties.getMaxSize();
                     String m = "上传的文件不能超过 " + maxSize / 1024 + " kb";
                     boolean nameInvalid = rejects.stream()
@@ -232,25 +238,21 @@ public class CreateOrRecreateCompanyRest {
                     }
                     if (companyIndustryInvalid) {
                         Assert.notNull(dto, "公司行业不能为空");
-                        Assert.hasText(dto.getCompanyIndustry(), "公司行业不能位空");
-                        CompanyIndustry ci = convertUtil.stringToCompanyIndustry
-                                .apply(dto.getCompanyIndustry());
-                        Assert.notNull(ci, "公司行业错误");
-                        boolean cannotSame=!ci
+                        Assert.notNull(dto.getCompanyIndustry(), "公司行业错误");
+
+                        boolean cannotSame=!dto.getCompanyIndustry()
                                 .equals(e.getCompanyIndustry());
                         Assert.isTrue(cannotSame, "公司行业未更正！");
-                        e.setCompanyIndustry(ci);
+                        e.setCompanyIndustry(dto.getCompanyIndustry());
                     }
                     if (enterpriseNatureInvalid) {
                         Assert.notNull(dto, "企业性质不能为空");
-                        Assert.hasText(dto.getEnterpriseNature(), "公司性质不能位空");
-                        EnterpriseNature en = convertUtil.stringToEnterpriseNature
-                                .apply(dto.getEnterpriseNature());
-                        Assert.notNull(en, "公司性质错误");
-                        boolean cannotSame=!en
+                        Assert.notNull(dto.getEnterpriseNature(), "公司性质不能位空");
+
+                        boolean cannotSame=!dto.getEnterpriseNature()
                                 .equals(e.getEnterpriseNature());
                         Assert.isTrue(cannotSame, "公司性质未更正！");
-                        e.setEnterpriseNature(en);
+                        e.setEnterpriseNature(dto.getEnterpriseNature());
                     }
 
 
@@ -332,12 +334,17 @@ public class CreateOrRecreateCompanyRest {
                     }
                     e.setRegisterTime(LocalDateTime.now());
                     log.info("新建公司注册信息，修改后，提交验证成功。。。");
-                    e.setRejects(null);
+                    //清空所有的rejects
+                    e.getRejects().clear();
                     repository.save(e);
                 });
 
         // 需要发送message出去，websocket 通知，前台去审核公司
-        newCompanyProducer.send(NEW_COMPANY);
+        MessageCommunicateDto messageCommunicateDto=new MessageCommunicateDto();
+        messageCommunicateDto.setSubject(Subject.NEW_COMPANY);
+        messageCommunicateDto.setOperate(Operate.ADD);
+        messageCommunicateDto.setReadGroup(ReadGroup.XDIDIAN);
+        producer.send(messageCommunicateDto);
         Map<String, Boolean> map = new HashMap<>();
         map.put("result", true);
         return ResponseEntity.ok(map

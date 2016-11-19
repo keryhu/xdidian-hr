@@ -2,6 +2,7 @@ package com.xdidian.keryhu.company.domain.address;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
 /**
@@ -24,7 +25,8 @@ public class Address implements Serializable{
   
   private String county;         //  县的信息
 
-  
+
+
   
 
 }

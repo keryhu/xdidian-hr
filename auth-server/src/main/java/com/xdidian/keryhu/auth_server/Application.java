@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 
 @SpringBootApplication
-@SessionAttributes("authorizationRequest")
+//@SessionAttributes("authorizationRequest")
 @EnableDiscoveryClient
 @EnableFeignClients
 public class Application {

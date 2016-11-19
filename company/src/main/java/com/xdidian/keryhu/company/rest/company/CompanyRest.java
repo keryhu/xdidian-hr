@@ -65,20 +65,17 @@ public class CompanyRest {
         NewCompanyResolveInfo info = new NewCompanyResolveInfo();
 
 
-        // 加入所有的 行业名字。
+        // 加入所有的 行业。
 
-        List<String> cc = new ArrayList<String>();
+        List<CompanyIndustry> cc=new ArrayList<>();
 
-        for (CompanyIndustry c : CompanyIndustry.values()) {
-            cc.add(c.getName());
-        }
+        Collections.addAll(cc, CompanyIndustry.values());
         info.setCompanyIndustries(cc);
 
         // 加入所有 的 公司性质数据
-        List<String> ee = new ArrayList<String>();
-        for (EnterpriseNature e : EnterpriseNature.values()) {
-            ee.add(e.getName());
-        }
+        List<EnterpriseNature> ee = new ArrayList<EnterpriseNature>();
+
+        Collections.addAll(ee, EnterpriseNature.values());
 
         info.setEnterpriseNatures(ee);
         String adminId = null;

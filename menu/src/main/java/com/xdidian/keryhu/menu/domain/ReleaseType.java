@@ -23,31 +23,6 @@ public enum ReleaseType {
   COMPANY_EVENT,   //  公司活动
   SPORTS,     //   体育活动
   TOUR;      //     旅游
-  
-  private static Map<String, ReleaseType> releaseTypeMap = new HashMap<String, ReleaseType>(5);
-  
-  static{
-    releaseTypeMap.put("MEETING",MEETING );
-    releaseTypeMap.put("NOTICE", NOTICE);
-    releaseTypeMap.put("COMPANY_EVENT",COMPANY_EVENT );
-    releaseTypeMap.put("SPORTS",SPORTS );
-    releaseTypeMap.put("TOUR", TOUR);
-  }
-
-  
-  @JsonCreator
-  public static ReleaseType forValue(String value) {
-    return releaseTypeMap.get(value);
-  }
-
-  @JsonValue
-  public String toValue() {
-    for (Entry<String, ReleaseType> release : releaseTypeMap.entrySet()) {
-      if (release.getValue() == this)
-        return release.getKey();
-    }
-    return null;
-  }
 
  
   public String getName(){

@@ -38,6 +38,7 @@
         <module>menu</module>
         <module>websocket</module>
         <module>pc-gateway</module>
+        <module>message</module>
     </modules>
 
     <dependencies>

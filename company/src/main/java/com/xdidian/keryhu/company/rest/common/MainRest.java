@@ -1,13 +1,11 @@
 package com.xdidian.keryhu.company.rest.common;
 
 import com.xdidian.keryhu.company.domain.address.Address;
+import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.xdidian.keryhu.company.domain.Department;
 import com.xdidian.keryhu.company.domain.Office;
@@ -63,6 +61,15 @@ public class MainRest {
 
 
 
+  @GetMapping("/query/6")
+  public ResponseEntity re(){
+    return ResponseEntity.ok(CompanyIndustry.CAI_KUANG);
+  }
+
+  @PostMapping("/query/5")
+  public void rew(@RequestParam("c") CompanyIndustry c){
+    log.info(c.toValue());
+  }
 
 
   

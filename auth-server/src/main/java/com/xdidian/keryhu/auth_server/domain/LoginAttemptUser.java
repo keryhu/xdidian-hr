@@ -1,10 +1,7 @@
 
 package com.xdidian.keryhu.auth_server.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -44,8 +41,6 @@ public class LoginAttemptUser implements Serializable {
   private List<String> loginName = new ArrayList<String>();
 
   @DateTimeFormat(iso = ISO.DATE_TIME)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
   // 当alreadyAttemptTimes 为1的时候的时间点。也就是第一次登录失败的时间点
   private LocalDateTime firstAttemptTime;
 
@@ -60,8 +55,6 @@ public class LoginAttemptUser implements Serializable {
 
   // 被系统锁定的时间点,默认未被系统锁定，所以是null
   @DateTimeFormat(iso = ISO.DATE_TIME)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
   private LocalDateTime lockedTime = null;
 
   public LoginAttemptUser() {

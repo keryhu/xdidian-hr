@@ -28,35 +28,6 @@ public enum CarrerPlanningResource {
   WORK_ENVIRONMENT, // 工作环境
   OTHER; // 其他
 
-  private static Map<String, CarrerPlanningResource> carrerPlanningResourceMap =
-      new HashMap<String, CarrerPlanningResource>(9);
-
-  static {
-    carrerPlanningResourceMap.put("POSITION", POSITION);
-    carrerPlanningResourceMap.put("SALARY", SALARY);
-    carrerPlanningResourceMap.put("TOUR", TOUR);
-    carrerPlanningResourceMap.put("TRAINING", TRAINING);
-    carrerPlanningResourceMap.put("SKILL", SKILL);
-    carrerPlanningResourceMap.put("WELFARE", WELFARE);
-    carrerPlanningResourceMap.put("INSURANCE", INSURANCE);
-    carrerPlanningResourceMap.put("WORK_ENVIRONMENT", WORK_ENVIRONMENT);
-    carrerPlanningResourceMap.put("OTHER", OTHER);
-
-  }
-
-  @JsonCreator
-  public static CarrerPlanningResource forValue(String value) {
-    return carrerPlanningResourceMap.get(value);
-  }
-
-  @JsonValue
-  public String toValue() {
-    for (Entry<String, CarrerPlanningResource> carrer : carrerPlanningResourceMap.entrySet()) {
-      if (carrer.getValue() == this)
-        return carrer.getKey();
-    }
-    return null;
-  }
 
   public String getName() {
     CarrerPlanningResource resource = this;

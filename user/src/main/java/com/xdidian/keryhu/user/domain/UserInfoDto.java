@@ -3,8 +3,8 @@ package com.xdidian.keryhu.user.domain;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 
 import lombok.Data;
+import org.springframework.web.servlet.tags.form.SelectTag;
 
 /**
  * 
@@ -47,7 +48,7 @@ public class UserInfoDto implements Serializable {
 
   //user 对应的company 的id，如果这个id为null或 "",那么就证明他目前没有公司。如果companyId为uuid，那么就证明现在有公司
   // 一个人可以  有 多个公司。
-  private List<String> companyIds=new ArrayList<>();
+  private Set<String> companyIds=new HashSet<>();
 
 
   private String name; // 对外公布的名字。

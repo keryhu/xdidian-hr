@@ -43,6 +43,7 @@ zuul:
     company: /api/company/**
     menu: /api/menu/**
     websocket: /api/websocket/**
+    message: /api/message/**
     
     
     

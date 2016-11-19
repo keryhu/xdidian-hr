@@ -1,11 +1,11 @@
 package com.xdidian.keryhu.user.stream.recover;
 
+import com.xdidian.keryhu.domain.tokenConfirm.NewPasswordDto;
 import com.xdidian.keryhu.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 
-import com.xdidian.keryhu.domain.NewPasswordDto;
 
 import lombok.extern.slf4j.Slf4j;
 import static com.xdidian.keryhu.util.StringValidate.isEmail;

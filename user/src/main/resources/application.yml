@@ -35,7 +35,7 @@ spring:
           content-type: application/x-java-object; type=com.xdidian.keryhu.domain.tokenConfirm.CommonTokenDto
         recoverPasswordSuccessInputChannel:
           destination: updateSuccess
-          content-type: application/x-java-object; type=com.xdidian.keryhu.domain.NewPasswordDto
+          content-type: application/x-java-object; type=com.xdidian.keryhu.domain.tokenConfirm.NewPasswordDto
 
         checkNewCompanyInputChannel:
           destination: checkNewCompany

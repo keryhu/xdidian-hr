@@ -47,7 +47,7 @@ public class MenuServiceImpl implements MenuService {
             for (MenuType m : MenuType.values()) {
                 // 除了 新地点管理员的 菜单选项
                 if (m.getId() >= 30 && m.getId() < 90) {
-                    dto.add(new MenuDto(m.getId(), m.getName(), m.getUrl()));
+                    dto.add(new MenuDto(m.getId(), m.toValue(), m.getUrl()));
                 }
             }
             return dto;
@@ -58,7 +58,7 @@ public class MenuServiceImpl implements MenuService {
             for (MenuType m : MenuType.values()) {
                 // 除了 新地点管理员的 菜单选项
                 if (m.getId() >= 30) {
-                    dto.add(new MenuDto(m.getId(), m.getName(), m.getUrl()));
+                    dto.add(new MenuDto(m.getId(), m.toValue(), m.getUrl()));
                 }
             }
             return dto;
@@ -68,13 +68,16 @@ public class MenuServiceImpl implements MenuService {
         // 如果未加入任何公司，那么就返回这4个。加入公司，创建公司，个人设置，会员主页
         else if ((!isInCompany) && notXi) {
 
-            dto.add(new MenuDto(MenuType.HOME.getId(), MenuType.HOME.getName(),
+            dto.add(new MenuDto(MenuType.HOME.getId(), MenuType.HOME.toValue(),
                     MenuType.HOME.getUrl()));
-            dto.add(new MenuDto(MenuType.CREATE_COMPANY.getId(), MenuType.CREATE_COMPANY.getName(),
+            dto.add(new MenuDto(MenuType.CREATE_COMPANY.getId(),
+                    MenuType.CREATE_COMPANY.toValue(),
                     MenuType.CREATE_COMPANY.getUrl()));
-            dto.add(new MenuDto(MenuType.JOIN_COMPANY.getId(), MenuType.JOIN_COMPANY.getName(),
+            dto.add(new MenuDto(MenuType.JOIN_COMPANY.getId(),
+                    MenuType.JOIN_COMPANY.toValue(),
                     MenuType.JOIN_COMPANY.getUrl()));
-            dto.add(new MenuDto(MenuType.PERSONAL_SET.getId(), MenuType.PERSONAL_SET.getName(),
+            dto.add(new MenuDto(MenuType.PERSONAL_SET.getId(),
+                    MenuType.PERSONAL_SET.toValue(),
                     MenuType.PERSONAL_SET.getUrl()));
 
             return dto;
@@ -84,7 +87,7 @@ public class MenuServiceImpl implements MenuService {
             for (MenuType m : MenuType.values()) {
                 // 除了 新地点管理员的 菜单选项
                 if (m.getId() < 30) {
-                    dto.add(new MenuDto(m.getId(), m.getName(), m.getUrl()));
+                    dto.add(new MenuDto(m.getId(), m.toValue(), m.getUrl()));
                 }
             }
             return dto;
@@ -92,27 +95,30 @@ public class MenuServiceImpl implements MenuService {
             // 当用户的菜单是默认菜单，即已经是公司 员工。
         } else if (defaultMenu) {
 
-            dto.add(new MenuDto(MenuType.HOME.getId(), MenuType.HOME.getName(),
+            dto.add(new MenuDto(MenuType.HOME.getId(), MenuType.HOME.toValue(),
                     MenuType.HOME.getUrl()));
-            dto.add(new MenuDto(MenuType.COMPANY_INFO.getId(), MenuType.COMPANY_INFO.getName(),
+            dto.add(new MenuDto(MenuType.COMPANY_INFO.getId(),
+                    MenuType.COMPANY_INFO.toValue(),
                     MenuType.COMPANY_INFO.getUrl()));
-            dto.add(new MenuDto(MenuType.CAREER_PLANNING.getId(), MenuType.CAREER_PLANNING.getName(),
+            dto.add(new MenuDto(MenuType.CAREER_PLANNING.getId(),
+                    MenuType.CAREER_PLANNING.toValue(),
                     MenuType.CAREER_PLANNING.getUrl()));
             dto.add(new MenuDto(MenuType.PERFORMANCE_APPRAISAL.getId(),
-                    MenuType.PERFORMANCE_APPRAISAL.getName(),
+                    MenuType.PERFORMANCE_APPRAISAL.toValue(),
                     MenuType.PERFORMANCE_APPRAISAL.getUrl()));
             dto.add(
                     new MenuDto(MenuType.ATTENDANCE_SALARY.getId(),
-                            MenuType.ATTENDANCE_SALARY.getName(), MenuType.ATTENDANCE_SALARY.getUrl()));
+                            MenuType.ATTENDANCE_SALARY.toValue(), MenuType.ATTENDANCE_SALARY.getUrl()));
             dto.add(
                     new MenuDto(MenuType.RELEASE_MANAGEMENT.getId(),
-                            MenuType.RELEASE_MANAGEMENT.getName(), MenuType.RELEASE_MANAGEMENT.getUrl()));
+                            MenuType.RELEASE_MANAGEMENT.toValue(), MenuType.RELEASE_MANAGEMENT.getUrl()));
             dto.add(new MenuDto(MenuType.REPORT_TRAINING.getId(),
-                    MenuType.REPORT_TRAINING.getName(), MenuType.REPORT_TRAINING.getUrl()));
+                    MenuType.REPORT_TRAINING.toValue(),
+                    MenuType.REPORT_TRAINING.getUrl()));
             dto.add(new MenuDto(MenuType.INNOVATION_SUGGESTIONS.getId(),
-                    MenuType.INNOVATION_SUGGESTIONS.getName(),
+                    MenuType.INNOVATION_SUGGESTIONS.toValue(),
                     MenuType.INNOVATION_SUGGESTIONS.getUrl()));
-            dto.add(new MenuDto(MenuType.PERSONAL_SET.getId(), MenuType.PERSONAL_SET.getName(),
+            dto.add(new MenuDto(MenuType.PERSONAL_SET.getId(), MenuType.PERSONAL_SET.toValue(),
                     MenuType.PERSONAL_SET.getUrl()));
 
             return dto;
@@ -123,7 +129,7 @@ public class MenuServiceImpl implements MenuService {
         else if (!defaultMenu) {
             List<MenuType> t = repository.findByUserId(userId).map(Menu::getMenuTypes).get();
 
-            return t.stream().map(e -> new MenuDto(e.getId(), e.getName(), e.getUrl()))
+            return t.stream().map(e -> new MenuDto(e.getId(), e.toValue(), e.getUrl()))
                     .collect(Collectors.toList());
         }
         return null;

@@ -2,14 +2,10 @@ package com.xdidian.keryhu.company.domain.company.common;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.querydsl.core.annotations.QueryEntity;
 import com.xdidian.keryhu.company.domain.address.Address;
-import com.xdidian.keryhu.company.domain.Department;
 import com.xdidian.keryhu.company.domain.company.check.Reject;
 import com.xdidian.keryhu.company.domain.company.component.CompanyIndustry;
 import com.xdidian.keryhu.company.domain.company.component.EnterpriseNature;
@@ -18,11 +14,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.xdidian.keryhu.company.config.json.TreeDepartmentDeserializer;
-import com.xdidian.keryhu.company.config.json.TreeDepartmentSerializer;
-import com.xdidian.keryhu.tree.TreeNode;
 
 import lombok.Data;
 
@@ -76,7 +67,7 @@ public class Company implements Serializable {
   private EnterpriseNature enterpriseNature; // 公司性质。
 
   // 审核被拒绝的理由。如果有新的拒绝理由，应该是add，而不是覆盖原来的，这样还可以查看到 以前这个公司的拒绝的理由。
-  private List<Reject> rejects=new ArrayList<>();
+  private Set<Reject> rejects=new HashSet<>();
 
   public Company() {
     this.id = UUID.randomUUID().toString();

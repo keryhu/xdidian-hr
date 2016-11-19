@@ -17,10 +17,11 @@ spring:
   cloud:
     stream:
       bindings:
-        newCompanyOutputChannel:
-          destination: newCompany
         checkNewCompanyOutputChannel:
           destination: checkNewCompany
+        websocketAndMessageOutputChannel:
+          destination: websocketAndMessage
+          contentType: application/json
 
       
   http:

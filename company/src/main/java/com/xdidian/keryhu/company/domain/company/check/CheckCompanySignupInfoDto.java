@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by hushuming on 2016/11/1.
@@ -24,9 +24,9 @@ public class CheckCompanySignupInfoDto implements Serializable {
 
     private CheckType checkMethod;   //AGREE, REJECT
 
-    // 一个公司的注册申请，不符合要求的，可能由多个，所以是数组
+    // 一个公司的注册申请，不符合要求的，可能由多个，所以是数组,且这里的reject，不允许重复
 
-    private List<Reject> rejects;
+    private Set<Reject> rejects;
 
 
 

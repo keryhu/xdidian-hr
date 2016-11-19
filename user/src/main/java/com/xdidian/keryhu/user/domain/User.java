@@ -14,9 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +71,7 @@ public class User implements Serializable {
 
     //user 对应的company 的id，如果这个id为null或 "",那么就证明他目前没有公司。如果companyId为uuid，那么就证明现在有公司
     // 一个人可以  有 多个公司。
-    private List<String> companyIds=new ArrayList<>();
+    private Set<String> companyIds=new HashSet<>();
 
     //增加用户头像。
 

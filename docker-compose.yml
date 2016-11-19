@@ -215,12 +215,29 @@ services:
         environment:
           MONGO_HOST: mongo
           RABBIT_HOST: rabbitmq
+          REDIS_HOST: redis
           DOMAIN_NAME: 192.168.1.110
         networks:
           - wfij
         depends_on:
           - eureka
           - config_server
+
+  message:
+          image: message:1.0-SNAPSHOT
+          container_name: message
+          restart: always
+          ports:
+           - "8008:8008"
+          environment:
+            MONGO_HOST: mongo
+            RABBIT_HOST: rabbitmq
+            DOMAIN_NAME: 192.168.1.110
+          networks:
+            - wfij
+          depends_on:
+            - eureka
+            - config_server
         
   pc_gateway:
     image: pc-gateway:1.0-SNAPSHOT

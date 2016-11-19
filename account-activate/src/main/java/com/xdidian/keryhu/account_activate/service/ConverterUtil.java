@@ -13,9 +13,9 @@ import com.xdidian.keryhu.account_activate.domain.ActivatedProperties;
 import com.xdidian.keryhu.account_activate.domain.CommonActivatedLocalToken;
 import com.xdidian.keryhu.account_activate.domain.FormAccountEditDto;
 import com.xdidian.keryhu.account_activate.domain.NewPasswordFormDto;
-import com.xdidian.keryhu.domain.NewPasswordDto;
 import com.xdidian.keryhu.domain.tokenConfirm.ApplySituation;
 import com.xdidian.keryhu.domain.tokenConfirm.CommonTokenDto;
+import com.xdidian.keryhu.domain.tokenConfirm.NewPasswordDto;
 import com.xdidian.keryhu.domain.tokenConfirm.RecoverMethod;
 
 import org.springframework.beans.factory.annotation.Autowired;
