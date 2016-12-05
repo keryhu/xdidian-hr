@@ -2,7 +2,9 @@
 
 这个方案是使用的 spring oauth2 stateless 和 angular2 ，携带 access——token的方案。
 
-因为 无法使用session，websocket，无法使用 发送给单个的某人，所以 这个方案暂停
+websocket 发送的问题，原因是 spring zuul 不支持websocket，所以websocket发送给个人的功能暂停。
+
+目前删除了websocket的服务
 
 
 一 、 xdidian  micro server docker 
@@ -11,7 +13,7 @@ spring micro－service cloud docker domo
 
 二 、 目前启动顺序是： eureka －> config server(10s)8888 ->user(20s)-> auth server(30s)9999
 -> mail(40s) 8002-> signup 8003 (50s)->account-activation(60s)->
-company(70s)->menu 边栏菜单(80s) 8006->websocket(90)8007->message(100) 8008
+company(70s)->menu 边栏菜单(80s) 8006->message(90) 8007
  ->pc gateway(120s)
  等其他的
 

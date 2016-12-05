@@ -3,7 +3,7 @@ MAINTAINER keryhu@hotmail.com
 VOLUME /tmp
 LABEL can-autoremove="true"
 RUN mkdir /app
-EXPOSE 8008
+EXPOSE 8007
 ADD message-1.0-SNAPSHOT.jar /app/app.jar
 COPY runboot.sh /app/
 RUN bash -c 'touch  /app/app.jar'

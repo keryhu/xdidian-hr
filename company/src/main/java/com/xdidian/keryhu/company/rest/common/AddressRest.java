@@ -26,7 +26,10 @@ public class AddressRest {
 
     private final AddressService addressService;
 
-    //用在 公司新建的时候，写地址信息，还有  公司信息修改的时候，，修改地址
+    //用在 公司新建的时候，写地址信息，还有  公司信息修改的时候，，修改地址，
+    // 为什么这个不需要secured，因为通道情况下，这个在携带accessToken的时候，
+    // angular2不能计时更新token，所以后台设置了免费。
+
     @GetMapping("/address/provinces")
     public ResponseEntity<?> getProvinces() {
 

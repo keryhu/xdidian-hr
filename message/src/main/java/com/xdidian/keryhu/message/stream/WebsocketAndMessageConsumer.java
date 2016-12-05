@@ -76,7 +76,6 @@ public class WebsocketAndMessageConsumer {
                 Set<SubjectMsg> s = new HashSet<>();
                 m.setUserId(dto.getUserId());
                 m.setSubjectMsgs(updateSubjectMsg(s, dto));
-                log.info("79");
                 log.info(String.valueOf(m));
                 repository.save(m);
             }

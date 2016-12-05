@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 /**
  * Created by hushuming on 2016/11/10.
  *
- * 此channel，用在专门发送消息给websocket和message组件的。
+ * 此channel，用在专门发送消息给websocket和message组件的。 目前websocket服务器暂停
  * 作用是，通知他们更新组件。
  * 用在company里面，具体的应用是：
  *

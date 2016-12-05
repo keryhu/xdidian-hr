@@ -237,6 +237,7 @@ public class CreateOrRecreateCompanyRest {
                         e.setFullAddress(dto.getFullAddress());
                     }
                     if (companyIndustryInvalid) {
+                        log.info(String.valueOf(dto.getCompanyIndustry()));
                         Assert.notNull(dto, "公司行业不能为空");
                         Assert.notNull(dto.getCompanyIndustry(), "公司行业错误");
 

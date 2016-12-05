@@ -206,29 +206,12 @@ services:
       - config_server
 
 
-  websocket:
-        image: websocket:1.0-SNAPSHOT
-        container_name: websocket
-        restart: always
-        ports:
-         - "8007:8007"
-        environment:
-          MONGO_HOST: mongo
-          RABBIT_HOST: rabbitmq
-          REDIS_HOST: redis
-          DOMAIN_NAME: 192.168.1.110
-        networks:
-          - wfij
-        depends_on:
-          - eureka
-          - config_server
-
   message:
           image: message:1.0-SNAPSHOT
           container_name: message
           restart: always
           ports:
-           - "8008:8008"
+           - "8007:8007"
           environment:
             MONGO_HOST: mongo
             RABBIT_HOST: rabbitmq

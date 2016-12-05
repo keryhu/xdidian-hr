@@ -42,6 +42,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().and().authorizeRequests().expressionHandler(webExpressionHandler()) // 权限排序
                 .mvcMatchers("/favicon.ico", "/query/**").permitAll()
+                .mvcMatchers(HttpMethod.GET,"/address/provinces").permitAll()
                 .mvcMatchers("/admin/**").hasRole("XDIDIAN_ADMIN")
                 .mvcMatchers("/service/**").hasAnyRole("XDIDIAN_ADMIN", "XDIDIAN_SERVICE")
                 .anyRequest().authenticated();

@@ -36,7 +36,6 @@
         <module>account-activate</module>
         <module>company</module>
         <module>menu</module>
-        <module>websocket</module>
         <module>pc-gateway</module>
         <module>message</module>
     </modules>

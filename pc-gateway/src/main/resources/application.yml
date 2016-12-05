@@ -24,8 +24,6 @@ security:
   user:
     password: none
   oauth2:
-    sso:
-      login-path: /login
     resource:
       jwt:
         keyValue: |

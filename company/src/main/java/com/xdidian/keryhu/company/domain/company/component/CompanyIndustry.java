@@ -2,7 +2,9 @@ package com.xdidian.keryhu.company.domain.company.component;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by hushuming on 2016/9/23.
@@ -13,10 +15,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
  *  后台可以直接将中文传递给前台，前台选择哪个enum的值，直接对应中文名字，传递给后台。
  *  节省了，前后台，中英文之间的转换
  *
+ * // 为什么要写 @JsonIgnoreProperties(ignoreUnknown = true)
+ * ，因为申请公司注册的人员，当修改信息的时候，
+ // 有可能公司行业没有修改，那么company/createCompanyAfterReject，
+ // 中CompanyIndustry的value就是null
  *
  */
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public enum CompanyIndustry {
 
     NONG_LIN("农、林、牧、渔业"),
@@ -51,18 +57,25 @@ public enum CompanyIndustry {
         return value;
     }
 
+
     @JsonCreator
     public static CompanyIndustry forValue(String value){
-        for(CompanyIndustry c:CompanyIndustry.values()){
-            if(c.value.equals(value))
-                return c;
+        if(value==null||value.isEmpty()){
+            return  null;
         }
-        String err=new StringBuffer("您提供的值: ")
-                .append(value)
-                .append(" 不对！")
-                .toString();
+        else {
+            for(CompanyIndustry c:CompanyIndustry.values()){
+                if(c.value.equals(value))
+                    return c;
+            }
+            String err=new StringBuffer("您提供的值: ")
+                    .append(value)
+                    .append(" 不对！")
+                    .toString();
 
-        throw new IllegalArgumentException(err);
+            throw new IllegalArgumentException(err);
+        }
+
     }
 
 

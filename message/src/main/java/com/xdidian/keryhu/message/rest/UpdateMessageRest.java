@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +24,8 @@ import java.util.stream.Collectors;
 /**
  * Created by hushuming on 2016/11/12.
  *
- * 当用户 点击前台的未读  菜单，从而促发 更新后台的未读消息的rest
+ * 当用户 点击前台的未读  菜单，从而促发 更新后台的未读消息的rest，更新完数据后，
+ * 再次返回给前台剩下的未读消息
  */
 
 @RestController
@@ -43,12 +45,16 @@ public class UpdateMessageRest {
         // 查看是否是新地点的管理员或者客服
         Boolean isXidian = SecurityUtils.isXdidian();
 
+        Set<SubjectMsg> subjectMsgs = new HashSet<>();
+
         if(isXidian){
             repository.findByReadGroup(ReadGroup.XDIDIAN)
                     .ifPresent(e->{
                         // update subject
-                        e.setSubjectMsgs(updateSubjectMsg(e.getSubjectMsgs(),form.getSubject()));
+                        Set<SubjectMsg> newS=updateSubjectMsg(e.getSubjectMsgs(),form.getSubject());
+                        e.setSubjectMsgs(newS);
                         repository.save(e);
+                        subjectMsgs.addAll(newS);
                     });
 
         }
@@ -57,15 +63,14 @@ public class UpdateMessageRest {
             repository.findByReadGroupAndUserId(ReadGroup.INDIVIDUAL,userId)
                     .ifPresent(e->{
                         // update subject
-                        e.setSubjectMsgs(updateSubjectMsg(e.getSubjectMsgs(),form.getSubject()));
+                        Set<SubjectMsg> newS=updateSubjectMsg(e.getSubjectMsgs(),form.getSubject());
+                        e.setSubjectMsgs(newS);
                         repository.save(e);
+                        subjectMsgs.addAll(newS);
                     });
         }
 
-
-        Map<String ,Boolean> map=new HashMap<>();
-        map.put("result",true);
-        return ResponseEntity.ok(map);
+        return ResponseEntity.ok(subjectMsgs);
     }
 
     // 将指定的subject 从数据库中 本人的名下移除
